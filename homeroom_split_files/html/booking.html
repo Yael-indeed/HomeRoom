@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bookings - Homeroom</title>
+  <link rel="stylesheet" href="../css/booking.css">
+</head>
+<body>
+  
+  <div class="topbar">
+    <div class="topbar-title">Bookings <span id="today-badge" class="badge badge-gold" style="font-size:11px;margin-left:8px;"></span></div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <a href="dashboard.html" class="btn btn-ghost btn-sm">Dashboard</a>
+      <a href="booking.html" class="btn btn-ghost btn-sm" style="color:var(--gold-400);">Bookings</a>
+      <a href="newbooking.html" class="btn btn-gold btn-sm">+ New Booking</a>
+      <a href="checkout.html" class="btn btn-ghost btn-sm">Check-out</a>
+    </div>
+  </div>
+  <div class="page-body">
+    <div class="card" style="padding:0;overflow:hidden;">
+      <!-- FILTERS -->
+      <div style="padding:14px 20px;border-bottom:1px solid var(--border);display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:var(--navy-950);">
+        <div class="search-bar-wrap">
+          <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 16 16"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg>
+          <input type="text" class="input-field search-bar" id="bk-search" placeholder="Search guest or booking #" oninput="renderBookings()" style="font-size:12px;padding:7px 10px 7px 34px;">
+        </div>
+        <div class="date-pair">
+          <input type="text" class="input-field date-input" id="date-from" placeholder="mm/dd/yyyy" style="width:110px;" oninput="renderBookings()">
+          <span>→</span>
+          <input type="text" class="input-field date-input" id="date-to" placeholder="mm/dd/yyyy" style="width:110px;" oninput="renderBookings()">
+        </div>
+        <select class="filter-select" id="status-filter" onchange="renderBookings()">
+          <option value="">All status</option>
+          <option value="active">Active</option>
+          <option value="extended">Extended</option>
+          <option value="completed">Completed</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+        <select class="filter-select" id="plan-filter" onchange="renderBookings()">
+          <option value="">All plans</option>
+          <option value="Hourly 1hr">Hourly 1hr</option>
+          <option value="Hourly 5hrs">Hourly 5hrs</option>
+          <option value="Hourly 10hrs">Hourly 10hrs</option>
+          <option value="Day Pass">Day Pass</option>
+          <option value="Monthly 3 Days">Monthly 3 Days</option>
+          <option value="Monthly 30 Days">Monthly 30 Days</option>
+        </select>
+        <button class="btn btn-ghost btn-sm" onclick="clearFilters()">Clear</button>
+      </div>
+      <!-- TABLE -->
+      <div class="table-wrap" style="max-height:calc(100vh - 280px);overflow-y:auto;">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Booking #</th><th>Guest</th><th>Plan</th><th>Date</th>
+              <th>Start</th><th>End</th><th>Total</th><th>Pts</th><th>Status</th><th></th>
+            </tr>
+          </thead>
+          <tbody id="bookings-tbody"></tbody>
+        </table>
+      </div>
+      <div style="padding:12px 20px;border-top:1px solid var(--border);background:var(--navy-950);">
+        <div class="pagination-bar">
+          <span class="page-info" id="page-info"></span>
+          <div class="page-buttons" id="page-buttons"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/booking.js"></script>
+</body>
+</html>

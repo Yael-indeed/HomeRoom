@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>New Booking - Homeroom</title>
+  <link rel="stylesheet" href="../css/newbooking.css">
+</head>
+<body>
+  
+  <div class="topbar">
+    <div class="topbar-title">New Booking</div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <a href="dashboard.html" class="btn btn-ghost btn-sm">Dashboard</a>
+      <a href="booking.html" class="btn btn-ghost btn-sm">← Back to Bookings</a>
+      <a href="checkout.html" class="btn btn-ghost btn-sm">Check-out</a>
+    </div>
+  </div>
+  <div class="page-body">
+    <div class="wizard-shell">
+      <!-- STEP INDICATOR -->
+      <div class="wizard-steps" id="wizard-steps"></div>
+      <!-- WIZARD CARD -->
+      <div class="wizard-card">
+        <!-- STEP 1 -->
+        <div id="wz-step-1">
+          <div class="wizard-header">
+            <div><h2>Select or Add Guest</h2><p>Search for an existing guest or register a new one</p></div>
+            <span class="badge badge-gold">Step 1 of 4</span>
+          </div>
+          <div class="wizard-body">
+            <div class="guest-search-wrap">
+              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 16 16"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg>
+              <input type="text" class="input-field guest-search" id="guest-search-input" placeholder="Search by name, email, or student ID…" oninput="searchGuests(this.value)">
+              <div class="guest-dropdown hidden" id="guest-dropdown"></div>
+            </div>
+            <div id="selected-guest-display" class="hidden"></div>
+            <div class="divider-or">or register a new guest</div>
+            <div class="input-row cols-3" style="margin-bottom:14px;">
+              <div class="input-wrap">
+                <label class="input-label">First Name *</label>
+                <input type="text" class="input-field" id="f-fname" placeholder="Maria">
+              </div>
+              <div class="input-wrap">
+                <label class="input-label">Last Name *</label>
+                <input type="text" class="input-field" id="f-lname" placeholder="Santos">
+              </div>
+              <div class="input-wrap">
+                <label class="input-label">Email Address</label>
+                <input type="email" class="input-field" id="f-email" placeholder="maria@email.com">
+              </div>
+            </div>
+            <div class="input-row cols-3">
+              <div class="input-wrap">
+                <label class="input-label">Mobile Number</label>
+                <input type="text" class="input-field" id="f-mobile" placeholder="09XX XXX XXXX">
+              </div>
+              <div class="input-wrap">
+                <label class="input-label">School / Affiliation</label>
+                <input type="text" class="input-field" id="f-school" placeholder="FEU, UST, DLSU…">
+              </div>
+              <div class="input-wrap">
+                <label class="input-label">Course / Facility</label>
+                <input type="text" class="input-field" id="f-course" placeholder="BS Computer Science">
+              </div>
+            </div>
+          </div>
+          <div class="wizard-footer">
+            <span class="wizard-footer-total" style="color:var(--text-muted);font-size:12px;">Select or add a guest to continue</span>
+            <button class="btn btn-gold btn-lg" onclick="wizardNext()">Continue →</button>
+          </div>
+        </div>
+
+        <!-- STEP 2 -->
+        <div id="wz-step-2" class="hidden">
+          <div class="wizard-header">
+            <div><h2>Select Rate</h2><p>Choose a plan that fits your guest's needs</p></div>
+            <span class="badge badge-gold">Step 2 of 4</span>
+          </div>
+          <div class="wizard-body">
+            <div class="rates-section-title">Hourly Passes</div>
+            <div class="rate-grid" id="rate-grid-hourly"></div>
+            <div class="rates-section-title" style="margin-top:16px;">Daily Pass</div>
+            <div class="rate-grid" id="rate-grid-daily"></div>
+            <div class="rates-section-title" style="margin-top:16px;">Monthly Consecutive</div>
+            <div class="rate-grid" id="rate-grid-monthly"></div>
+          </div>
+          <div class="wizard-footer">
+            <button class="btn btn-ghost" onclick="wizardPrev()">← Back</button>
+            <div class="wizard-footer-total">Selected: <strong id="wz-rate-label">—</strong></div>
+            <button class="btn btn-gold btn-lg" onclick="wizardNext()">Continue →</button>
+          </div>
+        </div>
+
+        <!-- STEP 3 -->
+        <div id="wz-step-3" class="hidden">
+          <div class="wizard-header">
+            <div><h2>Add-Ons</h2><p>Optional extras for this session</p></div>
+            <span class="badge badge-gold">Step 3 of 4</span>
+          </div>
+          <div class="wizard-body">
+            <div class="wifi-toggle" id="wifi-toggle" onclick="toggleWifi()">
+              <div class="flex items-center gap-12">
+                <span style="font-size:22px;">📶</span>
+                <div>
+                  <div style="font-size:13px;font-weight:600;">Wi-Fi Access</div>
+                  <div style="font-size:10px;color:var(--text-muted);">High-speed internet · ₱50.00</div>
+                </div>
+              </div>
+              <div class="toggle-switch" id="wifi-switch"><div class="toggle-knob"></div></div>
+            </div>
+            <div class="addon-grid" id="addon-grid"></div>
+          </div>
+          <div class="wizard-footer">
+            <button class="btn btn-ghost" onclick="wizardPrev()">← Back</button>
+            <div class="wizard-footer-total">Subtotal: <strong id="wz-addon-total">₱0.00</strong></div>
+            <button class="btn btn-gold btn-lg" onclick="wizardNext()">Continue →</button>
+          </div>
+        </div>
+
+        <!-- STEP 4 -->
+        <div id="wz-step-4" class="hidden">
+          <div class="wizard-header">
+            <div><h2>Confirm Booking</h2><p>Review details and apply discounts</p></div>
+            <span class="badge badge-gold">Step 4 of 4</span>
+          </div>
+          <div class="wizard-body">
+            <div class="summary-layout">
+              <div>
+                <div class="section-label" style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-400);margin-bottom:12px;display:flex;align-items:center;gap:8px;">Cost summary<span style="flex:1;height:1px;background:rgba(201,162,39,.15);display:block;"></span></div>
+                <div class="card-inset">
+                  <div id="summary-rows"></div>
+                  <div class="summary-total">
+                    <span>Total</span>
+                    <span class="val" id="summary-grand-total">₱0.00</span>
+                  </div>
+                </div>
+
+                <div class="promo-section" style="margin-top:20px;">
+                  <div class="section-label" style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-400);margin-bottom:10px;display:flex;align-items:center;gap:8px;">Discounts & Promos<span style="flex:1;height:1px;background:rgba(201,162,39,.15);display:block;"></span></div>
+                  <div class="card-inset">
+                    <div style="margin-bottom:12px;">
+                      <label class="input-label">Membership Discount</label>
+                      <div style="display:flex;gap:8px;margin-top:5px;flex-wrap:wrap;">
+                        <button class="btn btn-ghost btn-sm" onclick="applyMembership('none')">None</button>
+                        <button class="btn btn-ghost btn-sm" onclick="applyMembership('student')">Student (10%)</button>
+                        <button class="btn btn-ghost btn-sm" onclick="applyMembership('pwd')">PWD20 (20%)</button>
+                        <button class="btn btn-ghost btn-sm" onclick="applyMembership('senior')">Senior (15%)</button>
+                      </div>
+                    </div>
+                    <div>
+                      <label class="input-label">Promo Code</label>
+                      <div class="promo-row" style="margin-top:5px;">
+                        <input type="text" class="input-field" id="promo-input" placeholder="Enter promo code (e.g. SAVEMORE)" style="flex:1;">
+                        <button class="btn btn-ghost" onclick="applyPromo()">Apply</button>
+                      </div>
+                      <div id="promo-badge-wrap"></div>
+                      <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;">
+                        <span style="font-size:10px;color:var(--text-dim);">Try: </span>
+                        <span style="font-size:10px;color:var(--blue-300);cursor:pointer;" onclick="document.getElementById('promo-input').value='SAVEMORE'">SAVEMORE</span>
+                        <span style="font-size:10px;color:var(--blue-300);cursor:pointer;" onclick="document.getElementById('promo-input').value='PARTNER10'">PARTNER10</span>
+                        <span style="font-size:10px;color:var(--blue-300);cursor:pointer;" onclick="document.getElementById('promo-input').value='HR8TH'">HR8TH</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- COINS REDEEM -->
+                <div class="card-inset" style="margin-top:12px;display:flex;align-items:center;justify-content:space-between;">
+                  <div>
+                    <div style="font-size:12px;font-weight:600;">HR Coins</div>
+                    <div style="font-size:10px;color:var(--text-muted);margin-top:2px;" id="coins-available-text">Available: 0 coins</div>
+                  </div>
+                  <button class="btn btn-ghost btn-sm" id="redeem-btn" onclick="redeemCoins()">Redeem Coins</button>
+                </div>
+              </div>
+
+              <!-- RECEIPT CARD -->
+              <div class="receipt-card">
+                <div class="receipt-header">
+                  <div class="receipt-logo"><span>HR</span> Homeroom</div>
+                  <div class="receipt-subtitle">Coworking Space · Dapitan, Manila</div>
+                </div>
+                <div class="receipt-body">
+                  <div class="receipt-ref" id="receipt-ref">BN-202687998</div>
+                  <div class="receipt-row"><span class="rl">Guest</span><span class="rv" id="receipt-guest">—</span></div>
+                  <div class="receipt-row"><span class="rl">Plan</span><span class="rv" id="receipt-plan">—</span></div>
+                  <div class="receipt-row"><span class="rl">Date</span><span class="rv" id="receipt-date">—</span></div>
+                  <div class="receipt-row"><span class="rl">Duration</span><span class="rv" id="receipt-duration">—</span></div>
+                  <div class="receipt-row"><span class="rl">Start</span><span class="rv" id="receipt-start">—</span></div>
+                  <div class="receipt-row"><span class="rl">End (est.)</span><span class="rv" id="receipt-end">—</span></div>
+
+                  <!-- BARCODE -->
+                  <div class="barcode-wrap" id="barcode-wrap">
+                    <div class="barcode-lines" id="barcode-lines"></div>
+                    <div style="font-family:var(--mono);font-size:9px;color:#333;margin-top:4px;" id="barcode-text">BN-202687998</div>
+                  </div>
+
+                  <!-- WIFI CREDENTIALS -->
+                  <div class="wifi-creds" id="wifi-creds-box">
+                    <div class="wifi-title">📶 Wi-Fi Access</div>
+                    <div class="wifi-field"><span class="wl">Username</span><span class="wv" id="wifi-user">—</span></div>
+                    <div class="wifi-field"><span class="wl">Password</span><span class="wv" id="wifi-pass">—</span></div>
+                  </div>
+
+                  <!-- COINS EARNED -->
+                  <div class="coins-earned">
+                    <div class="coins-earned-val" id="coins-earned-val">+0</div>
+                    <div class="coins-earned-label">HR Coins earned this session</div>
+                    <div style="font-size:10px;color:var(--text-dim);margin-top:4px;">Total after: <span class="font-mono" id="coins-total-val">0</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="wizard-footer">
+            <button class="btn btn-ghost" onclick="wizardPrev()">← Back</button>
+            <div class="wizard-footer-total">Grand Total: <strong id="wz-grand-total">₱0.00</strong></div>
+            <div style="display:flex;gap:8px;">
+              <button class="btn btn-ghost btn-lg" onclick="printReceipt()">🖨 Print</button>
+              <button class="btn btn-gold btn-lg" onclick="confirmBooking()">✓ Confirm Booking</button>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /wizard-card -->
+    </div><!-- /wizard-shell -->
+  </div>
+
+  <script src="../js/newbooking.js"></script>
+</body>
+</html>

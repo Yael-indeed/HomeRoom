@@ -1,0 +1,2082 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>HomeRoom — Front Desk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+/* ═══════════════════════════════════════════════
+   DESIGN TOKENS — HomeRoom palette (from poster)
+   ═══════════════════════════════════════════════ */
+:root {
+  /* Core palette extracted from anniversary poster */
+  --navy-950: #060a18;
+  --navy-900: #0b1022;
+  --navy-800: #101629;
+  --navy-700: #151d36;
+  --navy-600: #1b2444;
+  --navy-500: #243060;
+  --navy-400: #2d3d7a;
+
+  --gold-600: #8a6910;
+  --gold-500: #b8890f;
+  --gold-400: #c9a227;
+  --gold-300: #e2bd4a;
+  --gold-200: #edcf6e;
+  --gold-100: #f7e9a8;
+
+  --blue-700: #1a2f8a;
+  --blue-600: #2040c0;
+  --blue-500: #2d52d4;
+  --blue-400: #4068e8;
+  --blue-300: #6b8ef5;
+
+  --slate-50:  #f8f9fc;
+  --slate-100: #eef0f6;
+  --slate-200: #d8dce8;
+  --slate-300: #b0b8d0;
+  --slate-400: #8090b4;
+  --slate-500: #5a6a90;
+  --slate-600: #3d4e72;
+
+  /* Semantic */
+  --bg:         var(--navy-950);
+  --surface:    var(--navy-900);
+  --surface2:   var(--navy-800);
+  --surface3:   var(--navy-700);
+  --border:     rgba(255,255,255,0.07);
+  --border2:    rgba(255,255,255,0.12);
+  --text:       #eef1fb;
+  --text-muted: #7a8aae;
+  --text-dim:   #4a5878;
+  --accent:     var(--gold-400);
+  --accent2:    var(--gold-300);
+  --success:    #1db86a;
+  --warning:    #e8a020;
+  --danger:     #e03c3c;
+  --info:       var(--blue-400);
+
+  --radius-sm:  6px;
+  --radius-md:  10px;
+  --radius-lg:  14px;
+  --radius-xl:  20px;
+
+  --shadow-sm:  0 1px 3px rgba(0,0,0,.4);
+  --shadow-md:  0 4px 16px rgba(0,0,0,.5);
+  --shadow-lg:  0 8px 32px rgba(0,0,0,.6);
+  --shadow-gold: 0 0 20px rgba(201,162,39,.15);
+
+  --font:  'Inter', sans-serif;
+  --mono:  'JetBrains Mono', monospace;
+
+  --sidebar-w: 220px;
+  --topbar-h:  56px;
+}
+
+/* ═══ RESET ═══ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body { font-family: var(--font); background: var(--bg); color: var(--text); font-size: 13px; line-height: 1.5; -webkit-font-smoothing: antialiased; overflow: hidden; }
+button { font-family: var(--font); cursor: pointer; border: none; outline: none; }
+input, select, textarea { font-family: var(--font); outline: none; }
+a { text-decoration: none; color: inherit; }
+* { scrollbar-width: thin; scrollbar-color: var(--navy-600) transparent; }
+*::-webkit-scrollbar { width: 4px; height: 4px; }
+*::-webkit-scrollbar-thumb { background: var(--navy-600); border-radius: 4px; }
+
+/* ═══ LAYOUT ═══ */
+.app { display: flex; height: 100vh; overflow: hidden; }
+
+/* ═══════════════════════════════════════════════
+   SIDEBAR
+   ═══════════════════════════════════════════════ */
+.sidebar {
+  width: var(--sidebar-w);
+  flex-shrink: 0;
+  background: var(--navy-900);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 50;
+}
+
+.sidebar-logo {
+  height: var(--topbar-h);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 18px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.logo-mark {
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--gold-400) 0%, var(--gold-300) 100%);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 13px; color: var(--navy-950); letter-spacing: -.5px;
+  flex-shrink: 0;
+}
+.logo-text { font-weight: 700; font-size: 13px; color: var(--text); line-height: 1.2; }
+.logo-text small { font-size: 10px; color: var(--text-muted); font-weight: 400; display: block; }
+
+.sidebar-section-label {
+  font-size: 9px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--text-dim); padding: 16px 18px 6px;
+}
+
+.nav-group { padding: 0 10px; display: flex; flex-direction: column; gap: 1px; }
+
+.nav-item {
+  display: flex; align-items: center; gap: 9px;
+  padding: 9px 10px; border-radius: var(--radius-sm);
+  color: var(--text-muted); font-size: 12px; font-weight: 500;
+  cursor: pointer; transition: all .15s; border: 1px solid transparent;
+  white-space: nowrap;
+}
+.nav-item svg { width: 15px; height: 15px; flex-shrink: 0; opacity: .7; }
+.nav-item:hover { color: var(--text); background: rgba(255,255,255,.05); }
+.nav-item.active {
+  color: var(--gold-300);
+  background: rgba(201,162,39,.09);
+  border-color: rgba(201,162,39,.18);
+}
+.nav-item.active svg { opacity: 1; }
+
+.sidebar-footer {
+  margin-top: auto;
+  padding: 14px 14px;
+  border-top: 1px solid var(--border);
+}
+.staff-card {
+  display: flex; align-items: center; gap: 9px;
+  padding: 8px 10px; border-radius: var(--radius-sm);
+  background: var(--navy-800); cursor: pointer;
+}
+.staff-avatar {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--blue-600) 0%, var(--blue-400) 100%);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 700; color: #fff; flex-shrink: 0;
+}
+.staff-name { font-size: 11px; font-weight: 600; color: var(--text); }
+.staff-role { font-size: 10px; color: var(--text-muted); }
+
+/* ═══════════════════════════════════════════════
+   MAIN + TOPBAR
+   ═══════════════════════════════════════════════ */
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+
+.topbar {
+  height: var(--topbar-h);
+  background: var(--navy-900);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center;
+  padding: 0 24px; gap: 12px;
+  flex-shrink: 0; z-index: 40;
+}
+.topbar-title { font-size: 15px; font-weight: 700; flex: 1; }
+.topbar-sub { font-size: 11px; color: var(--text-muted); font-weight: 400; margin-left: 8px; }
+
+.page-body { flex: 1; overflow-y: auto; padding: 24px; }
+
+/* ═══════════════════════════════════════════════
+   BUTTONS
+   ═══════════════════════════════════════════════ */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 16px; border-radius: var(--radius-sm);
+  font-size: 12px; font-weight: 600;
+  transition: all .15s; white-space: nowrap;
+}
+.btn-gold {
+  background: linear-gradient(135deg, var(--gold-400) 0%, var(--gold-300) 100%);
+  color: var(--navy-950);
+}
+.btn-gold:hover { filter: brightness(1.1); box-shadow: var(--shadow-gold); }
+.btn-outline {
+  background: transparent; color: var(--text-muted);
+  border: 1px solid var(--border2);
+}
+.btn-outline:hover { color: var(--text); border-color: rgba(255,255,255,.2); }
+.btn-ghost {
+  background: var(--navy-800); color: var(--text-muted);
+  border: 1px solid var(--border);
+}
+.btn-ghost:hover { color: var(--text); border-color: var(--border2); }
+.btn-danger {
+  background: rgba(224,60,60,.1); color: var(--danger);
+  border: 1px solid rgba(224,60,60,.2);
+}
+.btn-danger:hover { background: rgba(224,60,60,.2); }
+.btn-success {
+  background: rgba(29,184,106,.1); color: var(--success);
+  border: 1px solid rgba(29,184,106,.2);
+}
+.btn-success:hover { background: rgba(29,184,106,.18); }
+.btn-sm { padding: 5px 10px; font-size: 11px; }
+.btn-lg { padding: 11px 22px; font-size: 13px; }
+.btn-icon { padding: 7px; border-radius: var(--radius-sm); width: 32px; height: 32px; justify-content: center; }
+
+/* ═══════════════════════════════════════════════
+   FORM INPUTS
+   ═══════════════════════════════════════════════ */
+.input-wrap { display: flex; flex-direction: column; gap: 5px; }
+.input-label { font-size: 10px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .06em; }
+.input-field {
+  background: var(--navy-800); border: 1px solid var(--border2);
+  color: var(--text); border-radius: var(--radius-sm);
+  padding: 9px 12px; font-size: 13px; font-family: var(--font);
+  transition: border-color .15s, box-shadow .15s; width: 100%;
+}
+.input-field::placeholder { color: var(--text-dim); }
+.input-field:focus { border-color: var(--gold-400); box-shadow: 0 0 0 3px rgba(201,162,39,.12); }
+.input-field.error { border-color: var(--danger); box-shadow: 0 0 0 3px rgba(224,60,60,.1); }
+.input-field.valid { border-color: var(--success); }
+.input-error-msg { font-size: 10px; color: var(--danger); margin-top: 2px; }
+.input-row { display: grid; gap: 14px; }
+.input-row.cols-2 { grid-template-columns: 1fr 1fr; }
+.input-row.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+.input-row.cols-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+
+/* ═══════════════════════════════════════════════
+   BADGES
+   ═══════════════════════════════════════════════ */
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 8px; border-radius: 20px;
+  font-size: 10px; font-weight: 700; letter-spacing: .03em;
+}
+.badge::before { content: ''; width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+.badge-active   { background: rgba(29,184,106,.12); color: #1db86a; border: 1px solid rgba(29,184,106,.2); }
+.badge-active::before { background: #1db86a; }
+.badge-extended { background: rgba(232,160,32,.12); color: #e8a020; border: 1px solid rgba(232,160,32,.2); }
+.badge-extended::before { background: #e8a020; }
+.badge-completed{ background: rgba(122,138,174,.1); color: var(--text-muted); border: 1px solid rgba(122,138,174,.15); }
+.badge-completed::before { background: var(--text-muted); }
+.badge-cancelled{ background: rgba(224,60,60,.1); color: #e03c3c; border: 1px solid rgba(224,60,60,.2); }
+.badge-cancelled::before { background: #e03c3c; }
+.badge-gold { background: rgba(201,162,39,.12); color: var(--gold-300); border: 1px solid rgba(201,162,39,.2); }
+.badge-locked { background: rgba(90,106,144,.1); color: var(--slate-400); border: 1px solid rgba(90,106,144,.2); }
+
+/* ═══════════════════════════════════════════════
+   CARDS / SURFACES
+   ═══════════════════════════════════════════════ */
+.card {
+  background: var(--navy-900); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 20px;
+}
+.card-sm { padding: 14px 16px; border-radius: var(--radius-md); }
+.card-inset {
+  background: var(--navy-800); border: 1px solid var(--border);
+  border-radius: var(--radius-md); padding: 14px 16px;
+}
+
+/* ═══════════════════════════════════════════════
+   STAT CARDS (dashboard)
+   ═══════════════════════════════════════════════ */
+.stats-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 24px; }
+.stat-card {
+  background: var(--navy-900); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 18px 20px;
+  position: relative; overflow: hidden;
+}
+.stat-card::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(201,162,39,.04) 0%, transparent 70%);
+  pointer-events: none;
+}
+.stat-icon {
+  width: 36px; height: 36px; border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 14px; font-size: 16px;
+}
+.stat-icon.gold { background: rgba(201,162,39,.12); }
+.stat-icon.blue { background: rgba(64,104,232,.12); }
+.stat-icon.green { background: rgba(29,184,106,.1); }
+.stat-icon.red  { background: rgba(224,60,60,.1); }
+.stat-val { font-size: 24px; font-weight: 800; color: var(--text); line-height: 1; margin-bottom: 4px; font-variant-numeric: tabular-nums; }
+.stat-label { font-size: 11px; color: var(--text-muted); font-weight: 500; }
+.stat-trend { font-size: 10px; color: var(--success); margin-top: 6px; display: flex; align-items: center; gap: 3px; }
+.stat-trend.down { color: var(--danger); }
+
+/* ═══════════════════════════════════════════════
+   BOOKING WIZARD
+   ═══════════════════════════════════════════════ */
+.wizard-shell {
+  max-width: 900px; margin: 0 auto;
+}
+.wizard-steps {
+  display: flex; align-items: center; gap: 0;
+  margin-bottom: 28px;
+}
+.step-item {
+  display: flex; align-items: center; flex: 1;
+}
+.step-node {
+  display: flex; align-items: center; gap: 10px; padding: 10px 0;
+  flex-shrink: 0; cursor: default;
+}
+.step-circle {
+  width: 32px; height: 32px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; flex-shrink: 0;
+  transition: all .3s;
+}
+.step-circle.done {
+  background: linear-gradient(135deg, var(--gold-400), var(--gold-300));
+  color: var(--navy-950);
+}
+.step-circle.active {
+  background: var(--navy-600);
+  border: 2px solid var(--gold-400);
+  color: var(--gold-300);
+  box-shadow: 0 0 0 4px rgba(201,162,39,.12);
+}
+.step-circle.pending {
+  background: var(--navy-800);
+  border: 2px solid var(--border2);
+  color: var(--text-dim);
+}
+.step-label { font-size: 12px; font-weight: 600; line-height: 1.2; }
+.step-label small { display: block; font-size: 10px; color: var(--text-muted); font-weight: 400; }
+.step-label.active-label small { color: var(--gold-300); }
+.step-line {
+  flex: 1; height: 1px; background: var(--border);
+  margin: 0 8px; transition: background .3s;
+}
+.step-line.done { background: rgba(201,162,39,.4); }
+
+.wizard-card {
+  background: var(--navy-900); border: 1px solid var(--border);
+  border-radius: var(--radius-xl); overflow: hidden;
+}
+.wizard-header {
+  padding: 22px 28px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  background: linear-gradient(135deg, rgba(201,162,39,.04) 0%, transparent 60%);
+}
+.wizard-header h2 { font-size: 16px; font-weight: 700; }
+.wizard-header p { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+.wizard-body { padding: 28px; }
+.wizard-footer {
+  padding: 18px 28px; border-top: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--navy-950);
+}
+.wizard-footer-total { font-size: 13px; color: var(--text-muted); }
+.wizard-footer-total strong { color: var(--gold-300); font-size: 18px; font-family: var(--mono); margin-left: 8px; }
+
+/* ═══ STEP 1: GUEST ═══ */
+.guest-search-wrap { position: relative; margin-bottom: 20px; }
+.guest-search-wrap svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-dim); pointer-events: none; }
+.guest-search { padding-left: 38px !important; }
+.guest-dropdown {
+  position: absolute; top: calc(100% + 4px); left: 0; right: 0; z-index: 10;
+  background: var(--navy-800); border: 1px solid var(--border2);
+  border-radius: var(--radius-md); overflow: hidden;
+  box-shadow: var(--shadow-lg);
+}
+.guest-result {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px; cursor: pointer; transition: background .1s;
+}
+.guest-result:hover { background: rgba(255,255,255,.05); }
+.guest-avatar-sm {
+  width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+  background: linear-gradient(135deg, var(--blue-600), var(--blue-400));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; color: #fff;
+}
+.guest-result-name { font-size: 12px; font-weight: 600; color: var(--text); }
+.guest-result-meta { font-size: 10px; color: var(--text-muted); }
+.guest-coins-chip {
+  margin-left: auto; display: flex; align-items: center; gap: 4px;
+  background: rgba(201,162,39,.1); border: 1px solid rgba(201,162,39,.2);
+  color: var(--gold-300); padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 600;
+}
+
+.divider-or {
+  display: flex; align-items: center; gap: 12px; margin: 20px 0;
+  color: var(--text-dim); font-size: 11px;
+}
+.divider-or::before, .divider-or::after {
+  content: ''; flex: 1; height: 1px; background: var(--border);
+}
+
+.selected-guest-card {
+  display: flex; align-items: center; gap: 14px;
+  background: rgba(201,162,39,.06); border: 1px solid rgba(201,162,39,.2);
+  border-radius: var(--radius-md); padding: 14px 16px;
+  margin-bottom: 20px;
+}
+.selected-guest-avatar {
+  width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0;
+  background: linear-gradient(135deg, var(--gold-500), var(--gold-300));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; font-weight: 800; color: var(--navy-950);
+}
+.guest-detail-name { font-size: 14px; font-weight: 700; }
+.guest-detail-meta { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+.guest-detail-coins { display: flex; align-items: center; gap: 4px; margin-top: 4px; font-size: 11px; color: var(--gold-300); }
+
+/* ═══ STEP 2: RATES ═══ */
+.rates-section-title { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+.rates-section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+.rate-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 20px; }
+.rate-card {
+  background: var(--navy-800); border: 2px solid var(--border);
+  border-radius: var(--radius-md); padding: 16px;
+  cursor: pointer; transition: all .18s; position: relative; overflow: hidden;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.rate-card:hover:not(.locked) { border-color: rgba(201,162,39,.4); background: rgba(201,162,39,.04); }
+.rate-card.selected {
+  border-color: var(--gold-400); background: rgba(201,162,39,.07);
+  box-shadow: 0 0 0 1px rgba(201,162,39,.2), var(--shadow-gold);
+}
+.rate-card.locked { opacity: .45; cursor: not-allowed; }
+.rate-popular {
+  position: absolute; top: 8px; right: 8px;
+  background: linear-gradient(135deg, var(--gold-400), var(--gold-300));
+  color: var(--navy-950); font-size: 8px; font-weight: 800;
+  padding: 2px 7px; border-radius: 20px; letter-spacing: .05em; text-transform: uppercase;
+}
+.rate-lock {
+  position: absolute; top: 8px; right: 8px;
+  font-size: 11px; color: var(--text-dim);
+}
+.rate-type { font-size: 9px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--text-muted); }
+.rate-name { font-size: 14px; font-weight: 700; color: var(--text); margin-top: 2px; }
+.rate-duration { font-size: 10px; color: var(--text-dim); }
+.rate-price { font-size: 22px; font-weight: 800; color: var(--gold-300); font-family: var(--mono); margin-top: 8px; line-height: 1; }
+.rate-price span { font-size: 12px; color: var(--text-muted); font-weight: 400; font-family: var(--font); }
+.rate-note { font-size: 10px; color: var(--text-dim); margin-top: 4px; }
+.rate-check {
+  position: absolute; bottom: 10px; right: 10px;
+  width: 20px; height: 20px; border-radius: 50%;
+  background: var(--gold-400); display: none;
+  align-items: center; justify-content: center;
+}
+.rate-card.selected .rate-check { display: flex; }
+.rate-check svg { width: 11px; height: 11px; color: var(--navy-950); }
+
+/* ═══ STEP 3: ADD-ONS ═══ */
+.addon-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.addon-card {
+  background: var(--navy-800); border: 2px solid var(--border);
+  border-radius: var(--radius-md); padding: 14px 16px;
+  cursor: pointer; transition: all .18s; position: relative;
+  display: flex; align-items: center; gap: 12px;
+}
+.addon-card:hover { border-color: rgba(64,104,232,.4); background: rgba(64,104,232,.04); }
+.addon-card.selected {
+  border-color: var(--blue-400); background: rgba(64,104,232,.08);
+}
+.addon-icon { font-size: 22px; flex-shrink: 0; }
+.addon-name { font-size: 13px; font-weight: 600; }
+.addon-desc { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+.addon-price { font-size: 13px; font-weight: 700; color: var(--gold-300); font-family: var(--mono); margin-left: auto; flex-shrink: 0; }
+.addon-qty-wrap { display: flex; align-items: center; gap: 6px; margin-left: auto; }
+.qty-btn {
+  width: 24px; height: 24px; border-radius: 50%;
+  background: var(--navy-600); border: 1px solid var(--border2);
+  color: var(--text); font-size: 14px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .12s;
+}
+.qty-btn:hover { background: var(--navy-500); border-color: var(--gold-400); color: var(--gold-300); }
+.qty-val { font-family: var(--mono); font-size: 13px; font-weight: 600; min-width: 20px; text-align: center; }
+
+.wifi-toggle {
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--navy-800); border: 2px solid var(--border);
+  border-radius: var(--radius-md); padding: 14px 16px; cursor: pointer;
+  transition: all .18s; margin-bottom: 10px;
+}
+.wifi-toggle:hover { border-color: rgba(64,104,232,.3); }
+.wifi-toggle.active { border-color: var(--blue-400); background: rgba(64,104,232,.08); }
+.toggle-switch {
+  width: 40px; height: 22px; border-radius: 11px;
+  background: var(--navy-600); border: 1px solid var(--border2);
+  position: relative; transition: background .2s;
+}
+.toggle-switch.on { background: var(--blue-500); border-color: var(--blue-400); }
+.toggle-knob {
+  width: 16px; height: 16px; border-radius: 50%; background: #fff;
+  position: absolute; top: 2px; left: 2px; transition: transform .2s;
+  box-shadow: 0 1px 3px rgba(0,0,0,.3);
+}
+.toggle-switch.on .toggle-knob { transform: translateX(18px); }
+
+/* ═══ STEP 4: CONFIRM ═══ */
+.summary-layout { display: grid; grid-template-columns: 1fr 340px; gap: 20px; }
+.summary-section { margin-bottom: 20px; }
+.summary-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 9px 0; font-size: 12px;
+  border-bottom: 1px solid var(--border);
+}
+.summary-row:last-child { border-bottom: none; }
+.summary-row .label { color: var(--text-muted); }
+.summary-row .val { font-family: var(--mono); font-weight: 600; color: var(--text); }
+.summary-row .val.discount { color: var(--success); }
+.summary-total {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 14px 0 0; font-size: 16px; font-weight: 800;
+  border-top: 2px solid rgba(201,162,39,.3); margin-top: 6px;
+}
+.summary-total .val { color: var(--gold-300); font-family: var(--mono); font-size: 22px; }
+
+.promo-section { margin-bottom: 18px; }
+.promo-row { display: flex; gap: 8px; }
+.promo-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(29,184,106,.1); border: 1px solid rgba(29,184,106,.2);
+  color: var(--success); padding: 4px 10px; border-radius: var(--radius-sm);
+  font-size: 11px; font-weight: 600; margin-top: 8px;
+}
+.promo-x { cursor: pointer; opacity: .7; }
+.promo-x:hover { opacity: 1; }
+
+.receipt-card {
+  background: var(--navy-950); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); overflow: hidden;
+}
+.receipt-header {
+  background: linear-gradient(135deg, var(--navy-700) 0%, var(--navy-600) 100%);
+  border-bottom: 1px solid var(--border); padding: 16px 18px; text-align: center;
+}
+.receipt-logo { font-size: 16px; font-weight: 800; letter-spacing: -.5px; }
+.receipt-logo span { color: var(--gold-400); }
+.receipt-subtitle { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+.receipt-body { padding: 16px 18px; }
+.receipt-ref { font-family: var(--mono); font-size: 16px; font-weight: 700; color: var(--gold-300); letter-spacing: .05em; text-align: center; margin-bottom: 16px; }
+.receipt-row { display: flex; justify-content: space-between; font-size: 11px; padding: 4px 0; }
+.receipt-row .rl { color: var(--text-muted); }
+.receipt-row .rv { font-weight: 600; color: var(--text); font-family: var(--mono); font-size: 11px; }
+.barcode-wrap {
+  margin: 16px 0; text-align: center;
+  background: #fff; border-radius: var(--radius-sm); padding: 10px;
+}
+.barcode-lines {
+  display: flex; gap: 2px; justify-content: center; align-items: flex-end; height: 48px;
+}
+.barcode-lines div { background: #000; border-radius: 1px; }
+.wifi-creds {
+  background: rgba(64,104,232,.08); border: 1px solid rgba(64,104,232,.2);
+  border-radius: var(--radius-sm); padding: 10px 12px; margin-top: 12px;
+}
+.wifi-title { font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--blue-300); margin-bottom: 6px; display: flex; align-items: center; gap: 5px; }
+.wifi-field { display: flex; justify-content: space-between; font-size: 11px; margin-top: 4px; }
+.wifi-field .wl { color: var(--text-muted); }
+.wifi-field .wv { font-family: var(--mono); color: var(--text); font-weight: 600; }
+.coins-earned {
+  background: rgba(201,162,39,.08); border: 1px solid rgba(201,162,39,.2);
+  border-radius: var(--radius-sm); padding: 10px 12px; margin-top: 10px;
+  text-align: center;
+}
+.coins-earned-val { font-size: 20px; font-weight: 800; color: var(--gold-300); font-family: var(--mono); }
+.coins-earned-label { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+
+/* ═══════════════════════════════════════════════
+   BOOKING DASHBOARD
+   ═══════════════════════════════════════════════ */
+.dashboard-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+.search-bar-wrap { position: relative; flex: 1; max-width: 320px; }
+.search-bar-wrap svg { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: var(--text-dim); pointer-events: none; }
+.search-bar { padding-left: 36px !important; }
+
+.filter-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.date-pair { display: flex; align-items: center; gap: 6px; }
+.date-pair span { font-size: 11px; color: var(--text-muted); }
+.date-input { padding: 7px 10px !important; font-size: 11px !important; }
+
+.filter-select {
+  background: var(--navy-800); border: 1px solid var(--border2);
+  color: var(--text); border-radius: var(--radius-sm);
+  padding: 7px 30px 7px 10px; font-size: 11px; font-family: var(--font);
+  appearance: none; cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%237a8aae' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 9px center;
+  transition: border-color .15s;
+}
+.filter-select:focus { border-color: var(--gold-400); outline: none; }
+option { background: var(--navy-800); }
+
+/* TABLE */
+.table-wrap { overflow-x: auto; }
+.data-table { width: 100%; border-collapse: collapse; }
+.data-table thead th {
+  padding: 10px 16px; text-align: left;
+  font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--gold-400); border-bottom: 1px solid var(--border);
+  background: var(--navy-900); white-space: nowrap; position: sticky; top: 0; z-index: 5;
+}
+.data-table tbody tr {
+  border-bottom: 1px solid var(--border); transition: background .1s; cursor: pointer;
+}
+.data-table tbody tr:hover { background: rgba(255,255,255,.02); }
+.data-table tbody tr.row-selected { background: rgba(201,162,39,.05); border-left: 2px solid var(--gold-400); }
+.data-table td { padding: 12px 16px; font-size: 12px; vertical-align: middle; white-space: nowrap; }
+.cell-booking-no { font-family: var(--mono); font-size: 11px; color: var(--gold-200); }
+.cell-guest-name { font-weight: 600; }
+.cell-guest-sub { font-size: 10px; color: var(--text-muted); margin-top: 1px; }
+.cell-plan { display: inline-block; padding: 3px 9px; border-radius: 20px; font-size: 10px; font-weight: 600; background: rgba(45,82,212,.18); color: #7b9ef0; border: 1px solid rgba(45,82,212,.3); }
+.cell-cost { font-family: var(--mono); color: var(--gold-200); }
+.cell-date { font-family: var(--mono); font-size: 11px; color: var(--text-muted); }
+.cell-actions { display: flex; gap: 5px; }
+
+/* PAGINATION */
+.pagination-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 0 0; flex-wrap: wrap; gap: 8px;
+}
+.page-info { font-size: 11px; color: var(--text-muted); }
+.page-buttons { display: flex; gap: 4px; }
+.page-btn {
+  width: 30px; height: 30px; border-radius: var(--radius-sm);
+  background: var(--navy-800); border: 1px solid var(--border);
+  color: var(--text-muted); font-size: 11px; font-family: var(--mono);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all .15s;
+}
+.page-btn:hover, .page-btn.cur {
+  border-color: var(--gold-400); color: var(--gold-300);
+  background: rgba(201,162,39,.08);
+}
+
+/* ═══════════════════════════════════════════════
+   DETAIL DRAWER
+   ═══════════════════════════════════════════════ */
+.drawer-overlay {
+  position: fixed; inset: 0; background: rgba(5,8,20,.7);
+  z-index: 200; opacity: 0; pointer-events: none; transition: opacity .2s;
+}
+.drawer-overlay.open { opacity: 1; pointer-events: all; }
+.drawer {
+  position: absolute; right: 0; top: 0; bottom: 0; width: 400px;
+  background: var(--navy-900); border-left: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  transform: translateX(100%); transition: transform .25s cubic-bezier(.4,0,.2,1);
+  box-shadow: var(--shadow-lg);
+}
+.drawer-overlay.open .drawer { transform: translateX(0); }
+.drawer-header {
+  padding: 20px 22px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: flex-start; gap: 12px;
+  background: linear-gradient(135deg, rgba(201,162,39,.05) 0%, transparent 60%);
+  flex-shrink: 0;
+}
+.drawer-title-group { flex: 1; }
+.drawer-title { font-size: 16px; font-weight: 700; }
+.drawer-sub { font-family: var(--mono); font-size: 11px; color: var(--gold-300); margin-top: 3px; }
+.drawer-close-btn {
+  width: 30px; height: 30px; border-radius: var(--radius-sm);
+  background: var(--navy-800); border: 1px solid var(--border);
+  color: var(--text-muted); font-size: 16px; line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .15s;
+}
+.drawer-close-btn:hover { color: var(--text); border-color: var(--border2); }
+.drawer-body { flex: 1; overflow-y: auto; padding: 20px 22px; display: flex; flex-direction: column; gap: 20px; }
+.drawer-section-label {
+  font-size: 9px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--gold-400); margin-bottom: 10px; display: flex; align-items: center; gap: 8px;
+}
+.drawer-section-label::after { content: ''; flex: 1; height: 1px; background: rgba(201,162,39,.15); }
+.drawer-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.dinfo-item label { font-size: 9px; text-transform: uppercase; letter-spacing: .06em; color: var(--text-dim); display: block; margin-bottom: 3px; }
+.dinfo-item .dval { font-size: 12px; font-weight: 600; font-family: var(--mono); }
+
+.cost-breakdown-table { background: var(--navy-800); border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; }
+.cbt-row { display: flex; justify-content: space-between; padding: 9px 14px; font-size: 12px; border-bottom: 1px solid var(--border); }
+.cbt-row:last-child { border-bottom: none; }
+.cbt-row .cl { color: var(--text-muted); }
+.cbt-row .cv { font-family: var(--mono); font-weight: 600; }
+.cbt-row.total-row { background: rgba(201,162,39,.05); }
+.cbt-row.total-row .cl { color: var(--text); font-weight: 700; }
+.cbt-row.total-row .cv { color: var(--gold-300); font-size: 15px; }
+.cbt-row .discount-val { color: var(--success); }
+
+.ext-history { display: flex; flex-direction: column; gap: 6px; }
+.ext-item-card {
+  display: flex; justify-content: space-between; align-items: center;
+  background: var(--navy-800); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 8px 12px; font-size: 11px;
+}
+.ext-item-meta { color: var(--text-muted); font-family: var(--mono); }
+.ext-item-cost { color: var(--warning); font-family: var(--mono); font-weight: 700; }
+
+.drawer-actions { padding: 16px 22px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; background: var(--navy-950); }
+.drawer-action-row { display: flex; gap: 8px; }
+.drawer-btn {
+  flex: 1; padding: 9px 14px; border-radius: var(--radius-sm);
+  font-size: 12px; font-weight: 600; font-family: var(--font);
+  border: 1px solid var(--border2); background: var(--navy-800);
+  color: var(--text-muted); cursor: pointer; transition: all .15s; text-align: center;
+}
+.drawer-btn:hover { border-color: var(--gold-400); color: var(--gold-300); background: rgba(201,162,39,.06); }
+.drawer-btn.primary { background: linear-gradient(135deg,var(--gold-400),var(--gold-300)); color: var(--navy-950); border-color: transparent; }
+.drawer-btn.primary:hover { filter: brightness(1.08); }
+.drawer-btn.danger-btn:hover { border-color: var(--danger); color: var(--danger); background: rgba(224,60,60,.06); }
+
+/* ═══ EXTEND MODAL ═══ */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(5,8,20,.8); z-index: 300;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity .2s;
+}
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.modal {
+  background: var(--navy-900); border: 1px solid var(--border2);
+  border-radius: var(--radius-xl); padding: 28px; width: 360px;
+  transform: scale(.96) translateY(8px); transition: transform .2s;
+  box-shadow: var(--shadow-lg);
+}
+.modal-overlay.open .modal { transform: scale(1) translateY(0); }
+.modal-title { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+.modal-sub { font-size: 11px; color: var(--text-muted); margin-bottom: 20px; }
+.hour-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 16px; }
+.hour-card {
+  background: var(--navy-800); border: 2px solid var(--border);
+  border-radius: var(--radius-md); padding: 12px 10px;
+  cursor: pointer; text-align: center; transition: all .15s;
+}
+.hour-card:hover { border-color: rgba(201,162,39,.4); }
+.hour-card.sel { border-color: var(--gold-400); background: rgba(201,162,39,.08); }
+.hour-card .hv { font-family: var(--mono); font-size: 18px; font-weight: 800; color: var(--text); }
+.hour-card .hl { font-size: 10px; color: var(--text-muted); }
+.hour-card.sel .hv { color: var(--gold-300); }
+.modal-cost-preview {
+  display: flex; justify-content: space-between; align-items: center;
+  background: var(--navy-800); border: 1px solid rgba(201,162,39,.2);
+  border-radius: var(--radius-sm); padding: 10px 14px; margin-bottom: 18px;
+}
+.mcp-label { font-size: 11px; color: var(--text-muted); }
+.mcp-val { font-family: var(--mono); font-size: 16px; font-weight: 800; color: var(--gold-300); }
+.modal-actions { display: flex; gap: 8px; }
+
+/* ═══════════════════════════════════════════════
+   TABS
+   ═══════════════════════════════════════════════ */
+.tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
+.tab-item {
+  padding: 10px 18px; font-size: 12px; font-weight: 600; cursor: pointer;
+  color: var(--text-muted); border-bottom: 2px solid transparent; margin-bottom: -1px;
+  transition: all .15s;
+}
+.tab-item:hover { color: var(--text); }
+.tab-item.active { color: var(--gold-300); border-bottom-color: var(--gold-400); }
+
+/* ═══════════════════════════════════════════════
+   TOASTS
+   ═══════════════════════════════════════════════ */
+.toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 500; display: flex; flex-direction: column; gap: 8px; }
+.toast {
+  background: var(--navy-700); border: 1px solid var(--border2);
+  border-radius: var(--radius-md); padding: 12px 16px;
+  display: flex; align-items: center; gap: 10px; min-width: 260px;
+  box-shadow: var(--shadow-lg); font-size: 12px; font-weight: 500;
+  animation: slideIn .25s ease; transition: opacity .3s;
+}
+.toast.success { border-left: 3px solid var(--success); }
+.toast.warning { border-left: 3px solid var(--warning); }
+.toast.error   { border-left: 3px solid var(--danger); }
+@keyframes slideIn { from { transform: translateX(16px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+/* ═══ UTILS ═══ */
+.hidden { display: none !important; }
+.flex { display: flex; }
+.flex-col { display: flex; flex-direction: column; }
+.items-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.gap-8 { gap: 8px; }
+.gap-12 { gap: 12px; }
+.gap-16 { gap: 16px; }
+.mt-8 { margin-top: 8px; }
+.mt-12 { margin-top: 12px; }
+.mt-16 { margin-top: 16px; }
+.mb-16 { margin-bottom: 16px; }
+.text-muted { color: var(--text-muted); }
+.text-gold { color: var(--gold-300); }
+.text-sm { font-size: 11px; }
+.font-mono { font-family: var(--mono); }
+.fw-600 { font-weight: 600; }
+.fw-700 { font-weight: 700; }
+.w-full { width: 100%; }
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- ═══════════════ SIDEBAR ═══════════════ -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark">HR</div>
+      <div class="logo-text">Homeroom<small>Coworking Space</small></div>
+    </div>
+    <div style="flex:1;overflow-y:auto;padding:8px 0;">
+      <div class="sidebar-section-label">Main</div>
+      <div class="nav-group">
+        <div class="nav-item" id="nav-dashboard" onclick="showPage('dashboard')">
+          <svg fill="none" viewBox="0 0 16 16" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="5" height="5" rx="1"/><rect x="9" y="2" width="5" height="5" rx="1"/><rect x="2" y="9" width="5" height="5" rx="1"/><rect x="9" y="9" width="5" height="5" rx="1"/></svg>
+          Dashboard
+        </div>
+        <div class="nav-item" id="nav-bookings" onclick="showPage('bookings')">
+          <svg fill="none" viewBox="0 0 16 16" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="12" height="10" rx="1.5"/><path d="M5 7h6M5 10h4"/></svg>
+          Bookings
+        </div>
+        <div class="nav-item" id="nav-wizard" onclick="showPage('wizard')">
+          <svg fill="none" viewBox="0 0 16 16" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 5v4l2.5 1.5"/></svg>
+          New Booking
+        </div>
+        <div class="nav-item" id="nav-checkout" onclick="showPage('checkout')">
+          <svg fill="none" viewBox="0 0 16 16" stroke="currentColor" stroke-width="1.5"><path d="M3 4h1v8H3zM6 4h.5v8H6zM8 4h1.5v8H8zM11.5 4h.5v8h-.5zM13.5 4h1v8h-1z"/></svg>
+          Check-out
+        </div>
+      </div>
+      <div class="sidebar-section-label" style="margin-top:8px;">Reports</div>
+      <div class="nav-group">
+        <div class="nav-item" onclick="showToast('Booking Report — coming soon','warning')">
+          <svg fill="none" viewBox="0 0 16 16" stroke="currentColor" stroke-width="1.5"><path d="M2 12l3-4 3 2 3-5 3 3"/></svg>
+          Booking Report
+        </div>
+        <div class="nav-item" onclick="showToast('Income Report — coming soon','warning')">
+          <svg fill="none" viewBox="0 0 16 16" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 1.5"/></svg>
+          Income Report
+        </div>
+      </div>
+      <div class="sidebar-section-label" style="margin-top:8px;">System</div>
+      <div class="nav-group">
+        <div class="nav-item" onclick="showToast('Guests module — coming soon','warning')">
+          <svg fill="none" viewBox="0 0 16 16" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="5" r="3"/><path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg>
+          Guests
+        </div>
+        <div class="nav-item" onclick="showToast('Admin settings — coming soon','warning')">
+          <svg fill="none" viewBox="0 0 16 16" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="2.5"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.2 3.2l1.4 1.4M11.4 11.4l1.4 1.4"/></svg>
+          Admin Settings
+        </div>
+      </div>
+    </div>
+    <div class="sidebar-footer">
+      <div class="staff-card">
+        <div class="staff-avatar">JS</div>
+        <div><div class="staff-name">J. Santos</div><div class="staff-role">Front Desk</div></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ═══════════════ PAGES ═══════════════ -->
+  <div class="main">
+
+    <!-- ═════ DASHBOARD PAGE ═════ -->
+    <div id="page-dashboard" class="hidden">
+      <div class="topbar">
+        <div class="topbar-title">Dashboard <span class="topbar-sub">Wednesday, May 2, 2026</span></div>
+        <button class="btn btn-ghost btn-sm" onclick="showPage('wizard')">+ New Booking</button>
+      </div>
+      <div class="page-body">
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-icon gold">🏢</div>
+            <div class="stat-val">14</div>
+            <div class="stat-label">Active today</div>
+            <div class="stat-trend">↑ 3 more than yesterday</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon green">✓</div>
+            <div class="stat-val">8</div>
+            <div class="stat-label">Checked out</div>
+            <div class="stat-trend">↑ On track</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon blue">₱</div>
+            <div class="stat-val">₱18,420</div>
+            <div class="stat-label">Revenue today</div>
+            <div class="stat-trend">↑ ₱2,300 vs last Wed</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon red">⏰</div>
+            <div class="stat-val">3</div>
+            <div class="stat-label">Expiring soon</div>
+            <div class="stat-trend down">↓ Check these guests</div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 340px;gap:16px;">
+          <div class="card">
+            <div style="font-size:13px;font-weight:700;margin-bottom:16px;">Recent bookings</div>
+            <div class="table-wrap">
+              <table class="data-table" id="mini-table"></table>
+            </div>
+            <div style="margin-top:14px;text-align:right;">
+              <button class="btn btn-ghost btn-sm" onclick="showPage('bookings')">View all bookings →</button>
+            </div>
+          </div>
+          <div class="flex-col gap-12">
+            <div class="card" style="flex:1;">
+              <div style="font-size:13px;font-weight:700;margin-bottom:14px;">Occupancy</div>
+              <div style="display:flex;flex-direction:column;gap:10px;">
+                <div>
+                  <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:5px;"><span class="text-muted">Workstations</span><span class="font-mono">18 / 24</span></div>
+                  <div style="background:var(--navy-700);border-radius:4px;height:6px;"><div style="background:linear-gradient(90deg,var(--gold-400),var(--gold-300));height:6px;border-radius:4px;width:75%;"></div></div>
+                </div>
+                <div>
+                  <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:5px;"><span class="text-muted">Meeting Room</span><span class="font-mono">2 / 3</span></div>
+                  <div style="background:var(--navy-700);border-radius:4px;height:6px;"><div style="background:linear-gradient(90deg,var(--blue-500),var(--blue-300));height:6px;border-radius:4px;width:67%;"></div></div>
+                </div>
+                <div>
+                  <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:5px;"><span class="text-muted">Lockers</span><span class="font-mono">12 / 20</span></div>
+                  <div style="background:var(--navy-700);border-radius:4px;height:6px;"><div style="background:linear-gradient(90deg,var(--success),#40e0a0);height:6px;border-radius:4px;width:60%;"></div></div>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div style="font-size:13px;font-weight:700;margin-bottom:10px;">Quick actions</div>
+              <div style="display:flex;flex-direction:column;gap:7px;">
+                <button class="btn btn-gold w-full" onclick="showPage('wizard')">+ New Booking</button>
+                <button class="btn btn-ghost w-full" onclick="showPage('checkout')">🔍 Scan Check-out</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═════ BOOKINGS PAGE ═════ -->
+    <div id="page-bookings" class="hidden">
+      <div class="topbar">
+        <div class="topbar-title">Bookings</div>
+        <span id="today-badge" class="badge badge-gold" style="font-size:11px;"></span>
+        <button class="btn btn-ghost btn-sm">↓ Export</button>
+        <button class="btn btn-gold btn-sm" onclick="showPage('wizard')">+ New Booking</button>
+      </div>
+      <div class="page-body">
+        <div class="card" style="padding:0;overflow:hidden;">
+          <!-- FILTERS -->
+          <div style="padding:14px 20px;border-bottom:1px solid var(--border);display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:var(--navy-950);">
+            <div class="search-bar-wrap">
+              <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 16 16"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg>
+              <input type="text" class="input-field search-bar" id="bk-search" placeholder="Search guest or booking #" oninput="renderBookings()" style="font-size:12px;padding:7px 10px 7px 34px;">
+            </div>
+            <div class="date-pair">
+              <input type="text" class="input-field date-input" id="date-from" placeholder="mm/dd/yyyy" style="width:110px;" oninput="renderBookings()">
+              <span>→</span>
+              <input type="text" class="input-field date-input" id="date-to" placeholder="mm/dd/yyyy" style="width:110px;" oninput="renderBookings()">
+            </div>
+            <select class="filter-select" id="status-filter" onchange="renderBookings()">
+              <option value="">All status</option>
+              <option value="active">Active</option>
+              <option value="extended">Extended</option>
+              <option value="completed">Completed</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+            <select class="filter-select" id="plan-filter" onchange="renderBookings()">
+              <option value="">All plans</option>
+              <option value="Hourly 1hr">Hourly 1hr</option>
+              <option value="Hourly 5hrs">Hourly 5hrs</option>
+              <option value="Hourly 10hrs">Hourly 10hrs</option>
+              <option value="Day Pass">Day Pass</option>
+              <option value="Monthly 3 Days">Monthly 3 Days</option>
+              <option value="Monthly 30 Days">Monthly 30 Days</option>
+            </select>
+            <button class="btn btn-ghost btn-sm" onclick="clearFilters()">Clear</button>
+          </div>
+          <!-- TABLE -->
+          <div class="table-wrap" style="max-height:calc(100vh - 280px);overflow-y:auto;">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Booking #</th><th>Guest</th><th>Plan</th><th>Date</th>
+                  <th>Start</th><th>End</th><th>Total</th><th>Pts</th><th>Status</th><th></th>
+                </tr>
+              </thead>
+              <tbody id="bookings-tbody"></tbody>
+            </table>
+          </div>
+          <div style="padding:12px 20px;border-top:1px solid var(--border);background:var(--navy-950);">
+            <div class="pagination-bar">
+              <span class="page-info" id="page-info"></span>
+              <div class="page-buttons" id="page-buttons"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═════ BOOKING WIZARD PAGE ═════ -->
+    <div id="page-wizard" class="hidden">
+      <div class="topbar">
+        <div class="topbar-title">New Booking</div>
+        <button class="btn btn-ghost btn-sm" onclick="showPage('bookings')">← Back to Bookings</button>
+      </div>
+      <div class="page-body">
+        <div class="wizard-shell">
+          <!-- STEP INDICATOR -->
+          <div class="wizard-steps" id="wizard-steps"></div>
+          <!-- WIZARD CARD -->
+          <div class="wizard-card">
+            <!-- STEP 1 -->
+            <div id="wz-step-1">
+              <div class="wizard-header">
+                <div><h2>Select or Add Guest</h2><p>Search for an existing guest or register a new one</p></div>
+                <span class="badge badge-gold">Step 1 of 4</span>
+              </div>
+              <div class="wizard-body">
+                <div class="guest-search-wrap">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 16 16"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg>
+                  <input type="text" class="input-field guest-search" id="guest-search-input" placeholder="Search by name, email, or student ID…" oninput="searchGuests(this.value)">
+                  <div class="guest-dropdown hidden" id="guest-dropdown"></div>
+                </div>
+                <div id="selected-guest-display" class="hidden"></div>
+                <div class="divider-or">or register a new guest</div>
+                <div class="input-row cols-3" style="margin-bottom:14px;">
+                  <div class="input-wrap">
+                    <label class="input-label">First Name *</label>
+                    <input type="text" class="input-field" id="f-fname" placeholder="Maria">
+                  </div>
+                  <div class="input-wrap">
+                    <label class="input-label">Last Name *</label>
+                    <input type="text" class="input-field" id="f-lname" placeholder="Santos">
+                  </div>
+                  <div class="input-wrap">
+                    <label class="input-label">Email Address</label>
+                    <input type="email" class="input-field" id="f-email" placeholder="maria@email.com">
+                  </div>
+                </div>
+                <div class="input-row cols-3">
+                  <div class="input-wrap">
+                    <label class="input-label">Mobile Number</label>
+                    <input type="text" class="input-field" id="f-mobile" placeholder="09XX XXX XXXX">
+                  </div>
+                  <div class="input-wrap">
+                    <label class="input-label">School / Affiliation</label>
+                    <input type="text" class="input-field" id="f-school" placeholder="FEU, UST, DLSU…">
+                  </div>
+                  <div class="input-wrap">
+                    <label class="input-label">Course / Facility</label>
+                    <input type="text" class="input-field" id="f-course" placeholder="BS Computer Science">
+                  </div>
+                </div>
+              </div>
+              <div class="wizard-footer">
+                <span class="wizard-footer-total" style="color:var(--text-muted);font-size:12px;">Select or add a guest to continue</span>
+                <button class="btn btn-gold btn-lg" onclick="wizardNext()">Continue →</button>
+              </div>
+            </div>
+
+            <!-- STEP 2 -->
+            <div id="wz-step-2" class="hidden">
+              <div class="wizard-header">
+                <div><h2>Select Rate</h2><p>Choose a plan that fits your guest's needs</p></div>
+                <span class="badge badge-gold">Step 2 of 4</span>
+              </div>
+              <div class="wizard-body">
+                <div class="rates-section-title">Hourly Passes</div>
+                <div class="rate-grid" id="rate-grid-hourly"></div>
+                <div class="rates-section-title" style="margin-top:16px;">Daily Pass</div>
+                <div class="rate-grid" id="rate-grid-daily"></div>
+                <div class="rates-section-title" style="margin-top:16px;">Monthly Consecutive</div>
+                <div class="rate-grid" id="rate-grid-monthly"></div>
+              </div>
+              <div class="wizard-footer">
+                <button class="btn btn-ghost" onclick="wizardPrev()">← Back</button>
+                <div class="wizard-footer-total">Selected: <strong id="wz-rate-label">—</strong></div>
+                <button class="btn btn-gold btn-lg" onclick="wizardNext()">Continue →</button>
+              </div>
+            </div>
+
+            <!-- STEP 3 -->
+            <div id="wz-step-3" class="hidden">
+              <div class="wizard-header">
+                <div><h2>Add-Ons</h2><p>Optional extras for this session</p></div>
+                <span class="badge badge-gold">Step 3 of 4</span>
+              </div>
+              <div class="wizard-body">
+                <div class="wifi-toggle" id="wifi-toggle" onclick="toggleWifi()">
+                  <div class="flex items-center gap-12">
+                    <span style="font-size:22px;">📶</span>
+                    <div>
+                      <div style="font-size:13px;font-weight:600;">Wi-Fi Access</div>
+                      <div style="font-size:10px;color:var(--text-muted);">High-speed internet · ₱50.00</div>
+                    </div>
+                  </div>
+                  <div class="toggle-switch" id="wifi-switch"><div class="toggle-knob"></div></div>
+                </div>
+                <div class="addon-grid" id="addon-grid"></div>
+              </div>
+              <div class="wizard-footer">
+                <button class="btn btn-ghost" onclick="wizardPrev()">← Back</button>
+                <div class="wizard-footer-total">Subtotal: <strong id="wz-addon-total">₱0.00</strong></div>
+                <button class="btn btn-gold btn-lg" onclick="wizardNext()">Continue →</button>
+              </div>
+            </div>
+
+            <!-- STEP 4 -->
+            <div id="wz-step-4" class="hidden">
+              <div class="wizard-header">
+                <div><h2>Confirm Booking</h2><p>Review details and apply discounts</p></div>
+                <span class="badge badge-gold">Step 4 of 4</span>
+              </div>
+              <div class="wizard-body">
+                <div class="summary-layout">
+                  <div>
+                    <div class="section-label" style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-400);margin-bottom:12px;display:flex;align-items:center;gap:8px;">Cost summary<span style="flex:1;height:1px;background:rgba(201,162,39,.15);display:block;"></span></div>
+                    <div class="card-inset">
+                      <div id="summary-rows"></div>
+                      <div class="summary-total">
+                        <span>Total</span>
+                        <span class="val" id="summary-grand-total">₱0.00</span>
+                      </div>
+                    </div>
+
+                    <div class="promo-section" style="margin-top:20px;">
+                      <div class="section-label" style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-400);margin-bottom:10px;display:flex;align-items:center;gap:8px;">Discounts & Promos<span style="flex:1;height:1px;background:rgba(201,162,39,.15);display:block;"></span></div>
+                      <div class="card-inset">
+                        <div style="margin-bottom:12px;">
+                          <label class="input-label">Membership Discount</label>
+                          <div style="display:flex;gap:8px;margin-top:5px;flex-wrap:wrap;">
+                            <button class="btn btn-ghost btn-sm" onclick="applyMembership('none')">None</button>
+                            <button class="btn btn-ghost btn-sm" onclick="applyMembership('student')">Student (10%)</button>
+                            <button class="btn btn-ghost btn-sm" onclick="applyMembership('pwd')">PWD20 (20%)</button>
+                            <button class="btn btn-ghost btn-sm" onclick="applyMembership('senior')">Senior (15%)</button>
+                          </div>
+                        </div>
+                        <div>
+                          <label class="input-label">Promo Code</label>
+                          <div class="promo-row" style="margin-top:5px;">
+                            <input type="text" class="input-field" id="promo-input" placeholder="Enter promo code (e.g. SAVEMORE)" style="flex:1;">
+                            <button class="btn btn-ghost" onclick="applyPromo()">Apply</button>
+                          </div>
+                          <div id="promo-badge-wrap"></div>
+                          <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;">
+                            <span style="font-size:10px;color:var(--text-dim);">Try: </span>
+                            <span style="font-size:10px;color:var(--blue-300);cursor:pointer;" onclick="document.getElementById('promo-input').value='SAVEMORE'">SAVEMORE</span>
+                            <span style="font-size:10px;color:var(--blue-300);cursor:pointer;" onclick="document.getElementById('promo-input').value='PARTNER10'">PARTNER10</span>
+                            <span style="font-size:10px;color:var(--blue-300);cursor:pointer;" onclick="document.getElementById('promo-input').value='HR8TH'">HR8TH</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- COINS REDEEM -->
+                    <div class="card-inset" style="margin-top:12px;display:flex;align-items:center;justify-content:space-between;">
+                      <div>
+                        <div style="font-size:12px;font-weight:600;">HR Coins</div>
+                        <div style="font-size:10px;color:var(--text-muted);margin-top:2px;" id="coins-available-text">Available: 0 coins</div>
+                      </div>
+                      <button class="btn btn-ghost btn-sm" id="redeem-btn" onclick="redeemCoins()">Redeem Coins</button>
+                    </div>
+                  </div>
+
+                  <!-- RECEIPT CARD -->
+                  <div class="receipt-card">
+                    <div class="receipt-header">
+                      <div class="receipt-logo"><span>HR</span> Homeroom</div>
+                      <div class="receipt-subtitle">Coworking Space · Dapitan, Manila</div>
+                    </div>
+                    <div class="receipt-body">
+                      <div class="receipt-ref" id="receipt-ref">BN-202687998</div>
+                      <div class="receipt-row"><span class="rl">Guest</span><span class="rv" id="receipt-guest">—</span></div>
+                      <div class="receipt-row"><span class="rl">Plan</span><span class="rv" id="receipt-plan">—</span></div>
+                      <div class="receipt-row"><span class="rl">Date</span><span class="rv" id="receipt-date">—</span></div>
+                      <div class="receipt-row"><span class="rl">Duration</span><span class="rv" id="receipt-duration">—</span></div>
+                      <div class="receipt-row"><span class="rl">Start</span><span class="rv" id="receipt-start">—</span></div>
+                      <div class="receipt-row"><span class="rl">End (est.)</span><span class="rv" id="receipt-end">—</span></div>
+
+                      <!-- BARCODE -->
+                      <div class="barcode-wrap" id="barcode-wrap">
+                        <div class="barcode-lines" id="barcode-lines"></div>
+                        <div style="font-family:var(--mono);font-size:9px;color:#333;margin-top:4px;" id="barcode-text">BN-202687998</div>
+                      </div>
+
+                      <!-- WIFI CREDENTIALS -->
+                      <div class="wifi-creds" id="wifi-creds-box">
+                        <div class="wifi-title">📶 Wi-Fi Access</div>
+                        <div class="wifi-field"><span class="wl">Username</span><span class="wv" id="wifi-user">—</span></div>
+                        <div class="wifi-field"><span class="wl">Password</span><span class="wv" id="wifi-pass">—</span></div>
+                      </div>
+
+                      <!-- COINS EARNED -->
+                      <div class="coins-earned">
+                        <div class="coins-earned-val" id="coins-earned-val">+0</div>
+                        <div class="coins-earned-label">HR Coins earned this session</div>
+                        <div style="font-size:10px;color:var(--text-dim);margin-top:4px;">Total after: <span class="font-mono" id="coins-total-val">0</span></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="wizard-footer">
+                <button class="btn btn-ghost" onclick="wizardPrev()">← Back</button>
+                <div class="wizard-footer-total">Grand Total: <strong id="wz-grand-total">₱0.00</strong></div>
+                <div style="display:flex;gap:8px;">
+                  <button class="btn btn-ghost btn-lg" onclick="printReceipt()">🖨 Print</button>
+                  <button class="btn btn-gold btn-lg" onclick="confirmBooking()">✓ Confirm Booking</button>
+                </div>
+              </div>
+            </div>
+
+          </div><!-- /wizard-card -->
+        </div><!-- /wizard-shell -->
+      </div>
+    </div>
+
+    <!-- ═════ CHECKOUT PAGE ═════ -->
+    <div id="page-checkout" class="hidden">
+      <div class="topbar">
+        <div class="topbar-title">Check-out</div>
+      </div>
+      <div class="page-body">
+        <div style="max-width:540px;margin:40px auto;">
+          <div class="card" style="text-align:center;padding:40px 32px;">
+            <div style="font-size:48px;margin-bottom:16px;">🔍</div>
+            <div style="font-size:18px;font-weight:700;margin-bottom:8px;">Scan Barcode to Check Out</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-bottom:28px;">Point the barcode scanner at the guest stub, or type the booking number below.</div>
+            <div class="input-wrap" style="margin-bottom:16px;">
+              <label class="input-label">Booking Number / Barcode</label>
+              <input type="text" class="input-field" id="checkout-input" placeholder="BN-XXXXXXXXX or scan barcode…" autofocus oninput="onScanInput(this.value)" style="font-size:16px;text-align:center;letter-spacing:.08em;font-family:var(--mono);">
+            </div>
+            <button class="btn btn-gold btn-lg w-full" onclick="processCheckout()">Check Out Guest</button>
+          </div>
+          <div id="checkout-result" class="hidden" style="margin-top:16px;"></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- ═══════════════ BOOKING DETAIL DRAWER ═══════════════ -->
+<div class="drawer-overlay" id="detail-drawer-overlay" onclick="closeDrawer(event)">
+  <div class="drawer">
+    <div class="drawer-header">
+      <div class="drawer-title-group">
+        <div class="drawer-title" id="d-name">—</div>
+        <div class="drawer-sub" id="d-booking-no">—</div>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center;">
+        <span id="d-status-badge"></span>
+        <button class="drawer-close-btn" onclick="closeDrawerDirect()">✕</button>
+      </div>
+    </div>
+    <div class="drawer-body">
+      <div>
+        <div class="drawer-section-label">Booking Details</div>
+        <div class="drawer-info-grid">
+          <div class="dinfo-item"><label>Date</label><div class="dval" id="d-date">—</div></div>
+          <div class="dinfo-item"><label>Plan</label><div class="dval" id="d-plan">—</div></div>
+          <div class="dinfo-item"><label>Start time</label><div class="dval" id="d-start">—</div></div>
+          <div class="dinfo-item"><label>End time</label><div class="dval" id="d-end">—</div></div>
+          <div class="dinfo-item"><label>Check-out</label><div class="dval" id="d-checkout">—</div></div>
+          <div class="dinfo-item"><label>Extensions</label><div class="dval" id="d-extcount">—</div></div>
+        </div>
+      </div>
+      <div>
+        <div class="drawer-section-label">Cost Breakdown</div>
+        <div class="cost-breakdown-table" id="d-cost-table"></div>
+      </div>
+      <div>
+        <div class="drawer-section-label">Extension History</div>
+        <div class="ext-history" id="d-ext-history"></div>
+      </div>
+      <div>
+        <div class="drawer-section-label">Add-ons</div>
+        <div id="d-addons" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+      </div>
+    </div>
+    <div class="drawer-actions">
+      <div class="drawer-action-row">
+        <button class="drawer-btn primary" id="d-checkout-btn" onclick="drawerCheckout()">✓ Check Out</button>
+        <button class="drawer-btn" onclick="openExtendModal()">+ Extend</button>
+      </div>
+      <div class="drawer-action-row">
+        <button class="drawer-btn" onclick="showToast('Add-on feature coming soon','warning')">Add add-on</button>
+        <button class="drawer-btn" onclick="showToast('Wi-Fi added','success')">Add Wi-Fi</button>
+      </div>
+      <div class="drawer-action-row">
+        <button class="drawer-btn danger-btn" onclick="drawerCancel()">Cancel booking</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ EXTEND MODAL ═══════════════ -->
+<div class="modal-overlay" id="extend-modal">
+  <div class="modal">
+    <div class="modal-title">Extend Booking</div>
+    <div class="modal-sub" id="extend-modal-sub">Select additional hours</div>
+    <div class="hour-grid" id="hour-grid"></div>
+    <div class="modal-cost-preview">
+      <span class="mcp-label">Extension cost</span>
+      <span class="mcp-val" id="extend-cost-preview">₱0.00</span>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" style="flex:1;" onclick="closeExtendModal()">Cancel</button>
+      <button class="btn btn-gold" style="flex:1;" onclick="confirmExtend()">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOASTS -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- ═══════════════════════════════════════════════
+     JAVASCRIPT
+     ═══════════════════════════════════════════════ -->
+<script>
+/* ══════════════════════════════════════
+   RATES DATA
+══════════════════════════════════════ */
+const RATES = {
+  hourly: [
+    { id:'h1',  label:'Hourly 1hr',  type:'Hourly', name:'1 Hour',   duration:'1 hour',  price:80,   note:'Best for quick visits', popular:false, locked:false },
+    { id:'h5',  label:'Hourly 5hrs', type:'Hourly', name:'5 Hours',  duration:'5 hours', price:350,  note:'Save ₱50 vs single', popular:true, locked:false },
+    { id:'h10', label:'Hourly 10hrs',type:'Hourly', name:'10 Hours', duration:'10 hrs',  price:650,  note:'Save ₱150 vs single', popular:false, locked:false },
+  ],
+  daily: [
+    { id:'d1',  label:'Day Pass',    type:'Daily',  name:'Day Pass', duration:'Open-close', price:500, note:'8am–10pm access', popular:false, locked:false },
+  ],
+  monthly: [
+    { id:'m3',  label:'Monthly 3 Days', type:'Monthly', name:'3 Consecutive',  duration:'3 days',  price:1200, note:'Mon–Wed or Thu–Sat', popular:false, locked:false },
+    { id:'m30', label:'Monthly 30 Days',type:'Monthly', name:'30 Consecutive', duration:'30 days', price:7500, note:'Best value for regulars', popular:true, locked:false },
+    { id:'m30p',label:'Monthly Premium',type:'Monthly', name:'30 Days + Locker',duration:'30 days', price:9000, note:'Requires valid student ID', popular:false, locked:true },
+  ],
+};
+
+const ADDONS = [
+  { id:'locker',    icon:'🔒', name:'Locker',       desc:'Secure storage for your belongings', price:100, qty:0, multi:false },
+  { id:'printing',  icon:'🖨',  name:'Printing',     desc:'Per 10 pages black & white', price:50,  qty:0, multi:true  },
+  { id:'nespresso', icon:'☕', name:'Nespresso',    desc:'Single-origin espresso pod', price:80,  qty:0, multi:true  },
+  { id:'meeting',   icon:'🏢', name:'Meeting Room',  desc:'Private room · 1 hour', price:300, qty:0, multi:false },
+];
+
+const PROMOS = {
+  'SAVEMORE':  { label:'SAVEMORE',  discount:0.10, type:'pct', desc:'10% off' },
+  'PARTNER10': { label:'PARTNER10', discount:0.10, type:'pct', desc:'10% partner discount' },
+  'HR8TH':     { label:'HR8TH',     discount:200,  type:'fixed', desc:'₱200 off (anniversary)' },
+  'FLAT100':   { label:'FLAT100',   discount:100,  type:'fixed', desc:'₱100 flat discount' },
+};
+
+const MEMBERSHIP_DISCOUNTS = {
+  none:    { label:'None',          pct:0 },
+  student: { label:'Student (10%)', pct:0.10 },
+  pwd:     { label:'PWD20 (20%)',   pct:0.20 },
+  senior:  { label:'Senior (15%)',  pct:0.15 },
+};
+
+/* ══════════════════════════════════════
+   MOCK BOOKING DATA
+══════════════════════════════════════ */
+const MOCK_GUESTS = [
+  { id:1, name:'Maria Santos',    school:'FEU',   coins:120, email:'maria@feu.edu.ph',   mobile:'09171234567' },
+  { id:2, name:'Juan dela Cruz',  school:'UST',   coins:85,  email:'juan@ust.edu.ph',    mobile:'09281234567' },
+  { id:3, name:'Ana Reyes',       school:'DLSU',  coins:230, email:'ana@dlsu.edu.ph',    mobile:'09391234567' },
+  { id:4, name:'Carlos Gomez',    school:'ADMU',  coins:40,  email:'carlos@admu.edu.ph', mobile:'09461234567' },
+  { id:5, name:'Liza Fernandez',  school:'PUP',   coins:67,  email:'liza@pup.edu.ph',    mobile:'09551234567' },
+  { id:6, name:'Rico Magsaysay',  school:'TIP',   coins:190, email:'rico@tip.edu.ph',    mobile:'09661234567' },
+];
+
+let bookings = [
+  { id:1, num:'BN-202687001', guestId:1, guest:'Maria Santos',   school:'FEU',  plan:'Hourly 5hrs', date:'05/02/2026', start:'08:00', end:'13:00', checkout:null,    status:'active',    base:350, addons:150, extCost:0,   wifi:50, discount:0,   discountLabel:'', promos:[], extensions:[], addonList:['Locker','Printing'], coins:7  },
+  { id:2, num:'BN-202687002', guestId:2, guest:'Juan dela Cruz', school:'UST',  plan:'Hourly 1hr',  date:'05/02/2026', start:'09:30', end:'10:30', checkout:null,    status:'extended',  base:80,  addons:0,   extCost:80,  wifi:0,  discount:0,   discountLabel:'', promos:[], extensions:[{hours:1,cost:80,time:'10:25 AM'}], addonList:[], coins:3 },
+  { id:3, num:'BN-202687003', guestId:3, guest:'Ana Reyes',      school:'DLSU', plan:'Day Pass',    date:'05/02/2026', start:'07:00', end:'22:00', checkout:'18:30', status:'completed', base:500, addons:200, extCost:0,   wifi:50, discount:50,  discountLabel:'Student 10%', promos:[], extensions:[], addonList:['Locker'], coins:14 },
+  { id:4, num:'BN-202687004', guestId:4, guest:'Carlos Gomez',   school:'ADMU', plan:'Day Pass',    date:'05/01/2026', start:'10:00', end:'22:00', checkout:null,    status:'cancelled', base:500, addons:0,   extCost:0,   wifi:0,  discount:0,   discountLabel:'', promos:[], extensions:[], addonList:[], coins:0 },
+  { id:5, num:'BN-202687005', guestId:5, guest:'Liza Fernandez', school:'PUP',  plan:'Hourly 1hr',  date:'05/02/2026', start:'13:00', end:'14:00', checkout:null,    status:'active',    base:80,  addons:50,  extCost:0,   wifi:50, discount:8,   discountLabel:'Student 10%', promos:[], extensions:[], addonList:['Printing'], coins:3 },
+  { id:6, num:'BN-202687006', guestId:6, guest:'Rico Magsaysay', school:'TIP',  plan:'Monthly 3 Days', date:'05/01/2026', start:'09:00', end:'22:00', checkout:'17:55', status:'completed', base:1200, addons:300, extCost:160, wifi:100, discount:0, discountLabel:'', promos:[], extensions:[{hours:2,cost:160,time:'04:00 PM'}], addonList:['Meeting Room','Nespresso'], coins:24 },
+  { id:7, num:'BN-202687007', guestId:1, guest:'Maria Santos',   school:'FEU',  plan:'Day Pass',    date:'04/30/2026', start:'08:30', end:'22:00', checkout:'21:45', status:'completed', base:500, addons:100, extCost:0,   wifi:50, discount:0,   discountLabel:'', promos:[], extensions:[], addonList:['Locker'], coins:13 },
+  { id:8, num:'BN-202687008', guestId:3, guest:'Ana Reyes',      school:'DLSU', plan:'Hourly 10hrs',date:'04/29/2026', start:'07:00', end:'17:00', checkout:'16:55', status:'completed', base:650, addons:0,   extCost:0,   wifi:50, discount:0,   discountLabel:'', promos:[], extensions:[], addonList:[], coins:14 },
+  { id:9, num:'BN-202687009', guestId:2, guest:'Juan dela Cruz', school:'UST',  plan:'Hourly 1hr',  date:'04/28/2026', start:'14:00', end:'15:00', checkout:'14:58', status:'completed', base:80,  addons:80,  extCost:0,   wifi:0,  discount:0,   discountLabel:'', promos:[], extensions:[], addonList:['Nespresso'], coins:2 },
+  { id:10,num:'BN-202687010', guestId:5, guest:'Liza Fernandez', school:'PUP',  plan:'Monthly 30 Days', date:'05/02/2026', start:'07:00', end:'22:00', checkout:null, status:'active',   base:7500, addons:0,   extCost:0,   wifi:50, discount:750, discountLabel:'Student 10%', promos:[], extensions:[], addonList:[], coins:158 },
+  { id:11,num:'BN-202687011', guestId:4, guest:'Carlos Gomez',   school:'ADMU', plan:'Hourly 5hrs', date:'04/27/2026', start:'10:00', end:'15:00', checkout:'14:55', status:'completed', base:350, addons:80,  extCost:0,   wifi:50, discount:0,   discountLabel:'', promos:[], extensions:[], addonList:['Nespresso'], coins:10 },
+  { id:12,num:'BN-202687012', guestId:6, guest:'Rico Magsaysay', school:'TIP',  plan:'Day Pass',    date:'04/26/2026', start:'09:00', end:'22:00', checkout:'21:30', status:'completed', base:500, addons:300, extCost:80,  wifi:100, discount:0,  discountLabel:'', promos:[], extensions:[{hours:1,cost:80,time:'09:15 PM'}], addonList:['Meeting Room'], coins:20 },
+];
+
+function calcTotal(b) {
+  return Math.max(0, b.base + b.addons + b.extCost + b.wifi - b.discount);
+}
+
+/* ══════════════════════════════════════
+   WIZARD STATE
+══════════════════════════════════════ */
+let wzStep = 1;
+let wzGuest = null;
+let wzRate  = null;
+let wzAddons = JSON.parse(JSON.stringify(ADDONS));
+let wzWifi   = false;
+let wzMembership = 'none';
+let wzPromo  = null;
+let wzCoinsRedeemed = 0;
+let wzRefNo  = '';
+
+/* ══════════════════════════════════════
+   PAGE ROUTING
+══════════════════════════════════════ */
+function showPage(page) {
+  document.querySelectorAll('[id^="page-"]').forEach(el => el.classList.add('hidden'));
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  document.getElementById('page-' + page).classList.remove('hidden');
+  const navEl = document.getElementById('nav-' + page);
+  if (navEl) navEl.classList.add('active');
+
+  if (page === 'dashboard') renderMiniTable();
+  if (page === 'bookings')  { renderBookings(); updateTodayBadge(); }
+  if (page === 'wizard')    { resetWizard(); }
+  if (page === 'checkout')  { setTimeout(() => document.getElementById('checkout-input')?.focus(), 100); }
+}
+
+/* ══════════════════════════════════════
+   BOOKINGS TABLE
+══════════════════════════════════════ */
+let bkPage = 1;
+const BK_PER = 10;
+let selectedBookingId = null;
+
+function getFilteredBookings() {
+  const s  = (document.getElementById('bk-search')?.value || '').toLowerCase();
+  const st = document.getElementById('status-filter')?.value || '';
+  const pl = document.getElementById('plan-filter')?.value || '';
+  const df = document.getElementById('date-from')?.value || '';
+  const dt = document.getElementById('date-to')?.value || '';
+  return bookings.filter(b => {
+    if (s  && !b.guest.toLowerCase().includes(s) && !b.num.toLowerCase().includes(s)) return false;
+    if (st && b.status !== st) return false;
+    if (pl && b.plan !== pl) return false;
+    return true;
+  });
+}
+
+function renderBookings() {
+  const data  = getFilteredBookings();
+  const total = data.length;
+  const pages = Math.max(1, Math.ceil(total / BK_PER));
+  if (bkPage > pages) bkPage = pages;
+  const slice = data.slice((bkPage-1)*BK_PER, bkPage*BK_PER);
+
+  const tbody = document.getElementById('bookings-tbody');
+  if (!tbody) return;
+
+  tbody.innerHTML = slice.map(b => `
+    <tr class="${selectedBookingId === b.id ? 'row-selected' : ''}" onclick="openDrawer(${b.id})">
+      <td><div class="cell-booking-no">${b.num}</div></td>
+      <td><div class="cell-guest-name">${b.guest}</div><div class="cell-guest-sub">${b.school}</div></td>
+      <td><span class="cell-plan">${b.plan}</span></td>
+      <td class="cell-date">${b.date}</td>
+      <td class="cell-date">${b.start}</td>
+      <td class="cell-date">${b.end}</td>
+      <td class="cell-cost">₱${calcTotal(b).toLocaleString('en-PH',{minimumFractionDigits:2})}</td>
+      <td><span class="badge badge-gold" style="font-size:9px;">★${b.coins}</span></td>
+      <td><span class="badge badge-${b.status}">${b.status}</span></td>
+      <td>
+        <div class="cell-actions">
+          <button class="btn btn-ghost btn-sm btn-icon" title="View details" onclick="event.stopPropagation();openDrawer(${b.id})">
+            <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 16 16"><circle cx="8" cy="8" r="5"/><path d="M8 6v4M8 11v.5"/></svg>
+          </button>
+        </div>
+      </td>
+    </tr>`).join('');
+
+  document.getElementById('page-info').textContent =
+    `Showing ${(bkPage-1)*BK_PER + 1}–${Math.min(bkPage*BK_PER, total)} of ${total} bookings`;
+
+  const pb = document.getElementById('page-buttons');
+  pb.innerHTML = '';
+  const mkBtn = (label, p, disabled, isCur) => {
+    const b = document.createElement('button');
+    b.className = 'page-btn' + (isCur ? ' cur' : '');
+    b.textContent = label;
+    b.disabled = disabled;
+    if (!disabled) b.onclick = () => { bkPage = p; renderBookings(); };
+    pb.appendChild(b);
+  };
+  mkBtn('←', bkPage-1, bkPage===1, false);
+  for (let i=1; i<=pages; i++) mkBtn(i, i, false, i===bkPage);
+  mkBtn('→', bkPage+1, bkPage===pages, false);
+}
+
+function updateTodayBadge() {
+  const today = bookings.filter(b => b.date === '05/02/2026').length;
+  const el = document.getElementById('today-badge');
+  if (el) el.textContent = `Today: ${today}`;
+}
+
+function clearFilters() {
+  ['bk-search','date-from','date-to'].forEach(id => { const el = document.getElementById(id); if(el) el.value=''; });
+  ['status-filter','plan-filter'].forEach(id => { const el = document.getElementById(id); if(el) el.value=''; });
+  renderBookings();
+}
+
+function renderMiniTable() {
+  const t = document.getElementById('mini-table');
+  if (!t) return;
+  const slice = bookings.slice(0,6);
+  t.innerHTML = `<thead><tr>
+    <th style="padding:8px 12px;font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gold-400);border-bottom:1px solid var(--border);white-space:nowrap;">Booking #</th>
+    <th style="padding:8px 12px;font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gold-400);border-bottom:1px solid var(--border);">Guest</th>
+    <th style="padding:8px 12px;font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gold-400);border-bottom:1px solid var(--border);">Total</th>
+    <th style="padding:8px 12px;font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gold-400);border-bottom:1px solid var(--border);">Status</th>
+  </tr></thead><tbody>${slice.map(b=>`
+    <tr style="border-bottom:1px solid var(--border);">
+      <td style="padding:9px 12px;"><span class="cell-booking-no">${b.num}</span></td>
+      <td style="padding:9px 12px;font-size:12px;font-weight:600;">${b.guest}</td>
+      <td style="padding:9px 12px;" class="cell-cost">₱${calcTotal(b).toFixed(2)}</td>
+      <td style="padding:9px 12px;"><span class="badge badge-${b.status}">${b.status}</span></td>
+    </tr>`).join('')}</tbody>`;
+}
+
+/* ══════════════════════════════════════
+   DRAWER
+══════════════════════════════════════ */
+function openDrawer(id) {
+  selectedBookingId = id;
+  const b = bookings.find(x => x.id === id);
+  if (!b) return;
+
+  document.getElementById('d-name').textContent = b.guest;
+  document.getElementById('d-booking-no').textContent = b.num + ' · ' + b.school;
+  document.getElementById('d-status-badge').innerHTML = `<span class="badge badge-${b.status}">${b.status}</span>`;
+  document.getElementById('d-date').textContent = b.date;
+  document.getElementById('d-plan').textContent = b.plan;
+  document.getElementById('d-start').textContent = b.start;
+  document.getElementById('d-end').textContent = b.end;
+  document.getElementById('d-checkout').textContent = b.checkout || '—';
+  document.getElementById('d-extcount').textContent = b.extensions.length + ' time(s)';
+
+  const total = calcTotal(b);
+  document.getElementById('d-cost-table').innerHTML = `
+    <div class="cbt-row"><span class="cl">Base plan</span><span class="cv">₱${b.base.toFixed(2)}</span></div>
+    <div class="cbt-row"><span class="cl">Add-ons</span><span class="cv">₱${b.addons.toFixed(2)}</span></div>
+    <div class="cbt-row"><span class="cl">Extensions</span><span class="cv">₱${b.extCost.toFixed(2)}</span></div>
+    <div class="cbt-row"><span class="cl">Wi-Fi</span><span class="cv">₱${b.wifi.toFixed(2)}</span></div>
+    ${b.discount ? `<div class="cbt-row"><span class="cl">Discount (${b.discountLabel})</span><span class="cv discount-val">-₱${b.discount.toFixed(2)}</span></div>` : ''}
+    <div class="cbt-row total-row"><span class="cl">Total</span><span class="cv">₱${total.toLocaleString('en-PH',{minimumFractionDigits:2})}</span></div>`;
+
+  document.getElementById('d-ext-history').innerHTML = b.extensions.length
+    ? b.extensions.map(e=>`<div class="ext-item-card"><span class="ext-item-meta">+${e.hours}h · ${e.time}</span><span class="ext-item-cost">₱${e.cost.toFixed(2)}</span></div>`).join('')
+    : '<div class="text-muted text-sm" style="font-style:italic;">No extensions</div>';
+
+  document.getElementById('d-addons').innerHTML = b.addonList.length
+    ? b.addonList.map(a=>`<span class="badge badge-gold" style="font-size:10px;">${a}</span>`).join('')
+    : '<span class="text-muted text-sm" style="font-style:italic;">No add-ons</span>';
+
+  const cb = document.getElementById('d-checkout-btn');
+  const canCO = b.status === 'active' || b.status === 'extended';
+  cb.disabled = !canCO; cb.style.opacity = canCO ? '1' : '.4'; cb.style.cursor = canCO ? 'pointer' : 'not-allowed';
+
+  document.getElementById('detail-drawer-overlay').classList.add('open');
+  renderBookings();
+}
+
+function closeDrawer(e) {
+  if (e.target === document.getElementById('detail-drawer-overlay')) closeDrawerDirect();
+}
+function closeDrawerDirect() {
+  document.getElementById('detail-drawer-overlay').classList.remove('open');
+  selectedBookingId = null;
+  renderBookings();
+}
+
+function drawerCheckout() {
+  if (!selectedBookingId) return;
+  const b = bookings.find(x => x.id === selectedBookingId);
+  if (!b || (b.status !== 'active' && b.status !== 'extended')) return;
+  b.status = 'completed';
+  b.checkout = new Date().toLocaleTimeString('en-PH',{hour:'2-digit',minute:'2-digit'});
+  showToast(`${b.guest} checked out ✓`, 'success');
+  openDrawer(b.id);
+}
+
+function drawerCancel() {
+  if (!selectedBookingId) return;
+  const b = bookings.find(x => x.id === selectedBookingId);
+  if (!b) return;
+  if (!confirm('Cancel booking ' + b.num + '?')) return;
+  b.status = 'cancelled';
+  showToast('Booking cancelled', 'warning');
+  closeDrawerDirect();
+}
+
+/* ══════════════════════════════════════
+   EXTEND MODAL
+══════════════════════════════════════ */
+const EXTEND_RATE = 80;
+let extendHours = 0;
+
+function openExtendModal() {
+  if (!selectedBookingId) return;
+  const b = bookings.find(x => x.id === selectedBookingId);
+  document.getElementById('extend-modal-sub').textContent = 'Booking: ' + (b?.num || '');
+  extendHours = 0;
+  document.getElementById('extend-cost-preview').textContent = '₱0.00';
+
+  const grid = document.getElementById('hour-grid');
+  grid.innerHTML = [1,2,3,4,5,6].map(h => `
+    <div class="hour-card" id="hc-${h}" onclick="selectExtendHours(${h})">
+      <div class="hv">${h}</div>
+      <div class="hl">hour${h>1?'s':''}</div>
+    </div>`).join('');
+  document.getElementById('extend-modal').classList.add('open');
+}
+
+function selectExtendHours(h) {
+  extendHours = h;
+  document.querySelectorAll('.hour-card').forEach(el => el.classList.remove('sel'));
+  document.getElementById('hc-' + h)?.classList.add('sel');
+  document.getElementById('extend-cost-preview').textContent = '₱' + (h * EXTEND_RATE).toFixed(2);
+}
+
+function closeExtendModal() {
+  document.getElementById('extend-modal').classList.remove('open');
+  extendHours = 0;
+}
+
+function confirmExtend() {
+  if (!extendHours) { showToast('Please select hours', 'warning'); return; }
+  const b = bookings.find(x => x.id === selectedBookingId);
+  if (!b) return;
+  const cost = extendHours * EXTEND_RATE;
+  b.extensions.push({ hours: extendHours, cost, time: new Date().toLocaleTimeString('en-PH',{hour:'2-digit',minute:'2-digit'}) });
+  b.extCost += cost;
+  b.status = 'extended';
+  showToast(`Extended ${extendHours}h · ₱${cost.toFixed(2)} added`, 'success');
+  closeExtendModal();
+  openDrawer(b.id);
+}
+
+/* ══════════════════════════════════════
+   BOOKING WIZARD
+══════════════════════════════════════ */
+const STEP_LABELS = ['Select Guest','Choose Rate','Add-Ons','Confirm'];
+
+function renderWizardSteps() {
+  const container = document.getElementById('wizard-steps');
+  container.innerHTML = STEP_LABELS.map((label, i) => {
+    const step = i + 1;
+    const state = step < wzStep ? 'done' : step === wzStep ? 'active' : 'pending';
+    const lineState = step < wzStep ? 'done' : '';
+    const icon = state === 'done' ? '✓' : step;
+    return `
+      <div class="step-item">
+        <div class="step-node">
+          <div class="step-circle ${state}">${icon}</div>
+          <div class="step-label ${state==='active'?'active-label':''}">
+            ${label}<small>${state==='active'?'Current step':state==='done'?'Completed':'Pending'}</small>
+          </div>
+        </div>
+        ${step < STEP_LABELS.length ? `<div class="step-line ${lineState}"></div>` : ''}
+      </div>`;
+  }).join('');
+}
+
+function renderRateGrid(containerId, rates) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = rates.map(r => `
+    <div class="rate-card ${r.locked?'locked':''} ${wzRate?.id===r.id?'selected':''}" onclick="${r.locked?'showToast(\'This plan requires verification\',\'warning\')':'selectRate(\''+r.id+'\')'}">
+      ${r.popular ? '<span class="rate-popular">Popular</span>' : ''}
+      ${r.locked  ? '<span class="rate-lock">🔒</span>' : ''}
+      <div class="rate-type">${r.type}</div>
+      <div class="rate-name">${r.name}</div>
+      <div class="rate-duration">${r.duration}</div>
+      <div class="rate-price">₱${r.price.toLocaleString()}<span>/session</span></div>
+      <div class="rate-note">${r.note}</div>
+      <div class="rate-check">
+        <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M2 6l3 3 5-5"/></svg>
+      </div>
+    </div>`).join('');
+}
+
+function renderAddonGrid() {
+  const container = document.getElementById('addon-grid');
+  container.innerHTML = wzAddons.map((a, i) => `
+    <div class="addon-card ${a.qty > 0 ? 'selected' : ''}" id="addon-${a.id}">
+      <span class="addon-icon">${a.icon}</span>
+      <div style="flex:1;min-width:0;">
+        <div class="addon-name">${a.name}</div>
+        <div class="addon-desc">${a.desc}</div>
+      </div>
+      ${a.multi
+        ? `<div class="addon-qty-wrap">
+             <button class="qty-btn" onclick="event.stopPropagation();changeAddonQty(${i},-1)">−</button>
+             <span class="qty-val" id="qty-${a.id}">${a.qty}</span>
+             <button class="qty-btn" onclick="event.stopPropagation();changeAddonQty(${i},+1)">+</button>
+             <span class="addon-price">₱${a.price}</span>
+           </div>`
+        : `<div class="addon-qty-wrap">
+             <button class="qty-btn" onclick="event.stopPropagation();toggleAddon(${i})">${a.qty>0?'−':'+' }</button>
+             <span class="addon-price">₱${a.price}</span>
+           </div>`}
+    </div>`).join('');
+  updateAddonSubtotal();
+}
+
+function toggleAddon(idx) {
+  wzAddons[idx].qty = wzAddons[idx].qty > 0 ? 0 : 1;
+  renderAddonGrid();
+}
+function changeAddonQty(idx, delta) {
+  wzAddons[idx].qty = Math.max(0, wzAddons[idx].qty + delta);
+  renderAddonGrid();
+}
+function updateAddonSubtotal() {
+  const addonCost = wzAddons.reduce((s,a) => s + a.price * a.qty, 0);
+  const wifiCost  = wzWifi ? 50 : 0;
+  const rateCost  = wzRate ? wzRate.price : 0;
+  document.getElementById('wz-addon-total').textContent = '₱' + (rateCost + addonCost + wifiCost).toFixed(2);
+}
+
+function toggleWifi() {
+  wzWifi = !wzWifi;
+  const sw = document.getElementById('wifi-switch');
+  const tg = document.getElementById('wifi-toggle');
+  sw.classList.toggle('on', wzWifi);
+  tg.classList.toggle('active', wzWifi);
+  updateAddonSubtotal();
+  if (wzStep === 4) buildSummary();
+}
+
+function selectRate(id) {
+  const all = [...RATES.hourly, ...RATES.daily, ...RATES.monthly];
+  wzRate = all.find(r => r.id === id) || null;
+  renderRateGrid('rate-grid-hourly',  RATES.hourly);
+  renderRateGrid('rate-grid-daily',   RATES.daily);
+  renderRateGrid('rate-grid-monthly', RATES.monthly);
+  document.getElementById('wz-rate-label').textContent = wzRate ? `${wzRate.name} · ₱${wzRate.price}` : '—';
+}
+
+function searchGuests(val) {
+  const dd = document.getElementById('guest-dropdown');
+  if (!val.trim()) { dd.classList.add('hidden'); return; }
+  const results = MOCK_GUESTS.filter(g => g.name.toLowerCase().includes(val.toLowerCase()) || g.school.toLowerCase().includes(val.toLowerCase()));
+  if (!results.length) { dd.classList.add('hidden'); return; }
+  dd.innerHTML = results.map(g => `
+    <div class="guest-result" onclick="selectGuest(${g.id})">
+      <div class="guest-avatar-sm">${g.name.charAt(0)}</div>
+      <div>
+        <div class="guest-result-name">${g.name}</div>
+        <div class="guest-result-meta">${g.school} · ${g.email}</div>
+      </div>
+      <div class="guest-coins-chip">★ ${g.coins} coins</div>
+    </div>`).join('');
+  dd.classList.remove('hidden');
+}
+
+function selectGuest(id) {
+  wzGuest = MOCK_GUESTS.find(g => g.id === id);
+  document.getElementById('guest-dropdown').classList.add('hidden');
+  document.getElementById('guest-search-input').value = '';
+  const disp = document.getElementById('selected-guest-display');
+  disp.innerHTML = `
+    <div class="selected-guest-card">
+      <div class="selected-guest-avatar">${wzGuest.name.charAt(0)}</div>
+      <div style="flex:1;">
+        <div class="guest-detail-name">${wzGuest.name}</div>
+        <div class="guest-detail-meta">${wzGuest.school} · ${wzGuest.email}</div>
+        <div class="guest-detail-coins">★ ${wzGuest.coins} HR Coins available</div>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="clearGuest()">Change</button>
+    </div>`;
+  disp.classList.remove('hidden');
+}
+
+function clearGuest() {
+  wzGuest = null;
+  document.getElementById('selected-guest-display').classList.add('hidden');
+}
+
+function getNewGuestFromForm() {
+  const fname  = document.getElementById('f-fname').value.trim();
+  const lname  = document.getElementById('f-lname').value.trim();
+  const email  = document.getElementById('f-email').value.trim();
+  const mobile = document.getElementById('f-mobile').value.trim();
+  const school = document.getElementById('f-school').value.trim();
+  const course = document.getElementById('f-course').value.trim();
+  if (!fname || !lname) return null;
+  return { id: Date.now(), name: `${fname} ${lname}`, email, mobile, school, course, coins: 0 };
+}
+
+function wizardNext() {
+  if (wzStep === 1) {
+    if (!wzGuest) {
+      const g = getNewGuestFromForm();
+      if (!g) { showToast('Enter first and last name to continue', 'warning'); return; }
+      wzGuest = g;
+    }
+  }
+  if (wzStep === 2 && !wzRate) { showToast('Select a plan to continue', 'warning'); return; }
+  if (wzStep < 4) { wzStep++; renderWizard(); }
+}
+function wizardPrev() {
+  if (wzStep > 1) { wzStep--; renderWizard(); }
+}
+
+function renderWizard() {
+  renderWizardSteps();
+  [1,2,3,4].forEach(s => {
+    document.getElementById('wz-step-' + s).classList.toggle('hidden', s !== wzStep);
+  });
+  if (wzStep === 2) {
+    renderRateGrid('rate-grid-hourly',  RATES.hourly);
+    renderRateGrid('rate-grid-daily',   RATES.daily);
+    renderRateGrid('rate-grid-monthly', RATES.monthly);
+  }
+  if (wzStep === 3) renderAddonGrid();
+  if (wzStep === 4) buildSummary();
+}
+
+function resetWizard() {
+  wzStep = 1; wzGuest = null; wzRate = null;
+  wzAddons = JSON.parse(JSON.stringify(ADDONS));
+  wzWifi = false; wzMembership = 'none'; wzPromo = null; wzCoinsRedeemed = 0;
+  document.getElementById('guest-search-input').value = '';
+  document.getElementById('selected-guest-display').classList.add('hidden');
+  ['f-fname','f-lname','f-email','f-mobile','f-school','f-course'].forEach(id => {
+    const el = document.getElementById(id); if(el) el.value = '';
+  });
+  renderWizard();
+}
+
+/* ══════════════════════════════════════
+   SUMMARY / STEP 4
+══════════════════════════════════════ */
+function calcWizardTotals() {
+  const base     = wzRate ? wzRate.price : 0;
+  const addonAmt = wzAddons.reduce((s,a) => s + a.price * a.qty, 0);
+  const wifiAmt  = wzWifi ? 50 : 0;
+  const subtotal = base + addonAmt + wifiAmt;
+
+  let membershipDisc = 0;
+  if (wzMembership !== 'none') membershipDisc = subtotal * MEMBERSHIP_DISCOUNTS[wzMembership].pct;
+
+  let promoDisc = 0;
+  if (wzPromo) {
+    if (wzPromo.type === 'pct') promoDisc = subtotal * wzPromo.discount;
+    else promoDisc = wzPromo.discount;
+  }
+
+  const coinsDisc = wzCoinsRedeemed;
+  const totalDisc = membershipDisc + promoDisc + coinsDisc;
+  const grand     = Math.max(0, subtotal - totalDisc);
+  const coinsEarned = Math.floor(grand / 100) * 2;
+
+  return { base, addonAmt, wifiAmt, subtotal, membershipDisc, promoDisc, coinsDisc, totalDisc, grand, coinsEarned };
+}
+
+function buildSummary() {
+  const t = calcWizardTotals();
+  const today = new Date();
+  const dateStr = today.toLocaleDateString('en-PH',{month:'2-digit',day:'2-digit',year:'numeric'});
+  const timeStr = today.toLocaleTimeString('en-PH',{hour:'2-digit',minute:'2-digit'});
+
+  // Duration for end time
+  let durationMins = 60;
+  if (wzRate) {
+    if (wzRate.id==='h1') durationMins=60;
+    else if (wzRate.id==='h5') durationMins=300;
+    else if (wzRate.id==='h10') durationMins=600;
+    else if (wzRate.id==='d1') durationMins=14*60;
+    else if (wzRate.id==='m3') durationMins=3*24*60;
+    else durationMins=30*24*60;
+  }
+  const endTime = new Date(today.getTime() + durationMins * 60000);
+  const endStr  = endTime.toLocaleTimeString('en-PH',{hour:'2-digit',minute:'2-digit'});
+
+  // Ref no
+  wzRefNo = 'BN-' + (200000000 + Math.floor(Math.random()*99999999));
+
+  // Summary rows
+  const rows = [];
+  rows.push({ label:'Base plan', val: `₱${t.base.toFixed(2)}` });
+  if (wzWifi)     rows.push({ label:'Wi-Fi access', val: `₱50.00` });
+  wzAddons.filter(a=>a.qty>0).forEach(a => rows.push({ label:`${a.name} ×${a.qty}`, val:`₱${(a.price*a.qty).toFixed(2)}` }));
+  if (t.membershipDisc) rows.push({ label:`${MEMBERSHIP_DISCOUNTS[wzMembership].label}`, val:`-₱${t.membershipDisc.toFixed(2)}`, discount:true });
+  if (t.promoDisc)      rows.push({ label:`Promo: ${wzPromo.label}`, val:`-₱${t.promoDisc.toFixed(2)}`, discount:true });
+  if (t.coinsDisc)      rows.push({ label:'Coins redeemed', val:`-₱${t.coinsDisc.toFixed(2)}`, discount:true });
+
+  document.getElementById('summary-rows').innerHTML = rows.map(r => `
+    <div class="summary-row">
+      <span class="label">${r.label}</span>
+      <span class="val ${r.discount?'discount':''}">${r.val}</span>
+    </div>`).join('');
+
+  document.getElementById('summary-grand-total').textContent = '₱' + t.grand.toLocaleString('en-PH',{minimumFractionDigits:2});
+  document.getElementById('wz-grand-total').textContent = '₱' + t.grand.toLocaleString('en-PH',{minimumFractionDigits:2});
+
+  // Receipt
+  document.getElementById('receipt-ref').textContent      = wzRefNo;
+  document.getElementById('receipt-guest').textContent    = wzGuest ? wzGuest.name : '—';
+  document.getElementById('receipt-plan').textContent     = wzRate ? wzRate.name : '—';
+  document.getElementById('receipt-date').textContent     = dateStr;
+  document.getElementById('receipt-duration').textContent = wzRate ? wzRate.duration : '—';
+  document.getElementById('receipt-start').textContent    = timeStr;
+  document.getElementById('receipt-end').textContent      = endStr;
+  document.getElementById('barcode-text').textContent     = wzRefNo;
+
+  // Barcode visual
+  const lines = document.getElementById('barcode-lines');
+  const code = wzRefNo.replace(/\D/g,'');
+  lines.innerHTML = '';
+  for (let i = 0; i < 60; i++) {
+    const d = document.createElement('div');
+    const w = (i % 3 === 0) ? 3 : (i % 5 === 0 ? 2 : 1);
+    d.style.width = w + 'px';
+    d.style.height = (i % 4 === 0 ? 48 : i % 2 === 0 ? 38 : 28) + 'px';
+    lines.appendChild(d);
+  }
+
+  // Wi-Fi creds
+  const wifiBox = document.getElementById('wifi-creds-box');
+  if (wzWifi) {
+    wifiBox.classList.remove('hidden');
+    document.getElementById('wifi-user').textContent = 'hr_' + wzRefNo.slice(-6).toLowerCase();
+    document.getElementById('wifi-pass').textContent = 'HR' + Math.random().toString(36).slice(2,8).toUpperCase();
+  } else {
+    wifiBox.classList.add('hidden');
+  }
+
+  // Coins
+  const coinsTotal = (wzGuest?.coins || 0) - wzCoinsRedeemed + t.coinsEarned;
+  document.getElementById('coins-earned-val').textContent = '+' + t.coinsEarned;
+  document.getElementById('coins-total-val').textContent  = coinsTotal + ' coins';
+  document.getElementById('coins-available-text').textContent = `Available: ${wzGuest?.coins||0} coins`;
+}
+
+function applyMembership(type) {
+  wzMembership = type;
+  buildSummary();
+  if (type !== 'none') showToast(`${MEMBERSHIP_DISCOUNTS[type].label} applied`, 'success');
+}
+
+function applyPromo() {
+  const code = document.getElementById('promo-input').value.trim().toUpperCase();
+  if (!code) { showToast('Enter a promo code', 'warning'); return; }
+  const promo = PROMOS[code];
+  if (!promo) { showToast(`"${code}" is not a valid promo code`, 'error'); return; }
+  wzPromo = promo;
+  document.getElementById('promo-badge-wrap').innerHTML = `
+    <div class="promo-badge">
+      ✓ ${promo.label} — ${promo.desc}
+      <span class="promo-x" onclick="removePromo()">✕</span>
+    </div>`;
+  buildSummary();
+  showToast(`Promo "${promo.label}" applied — ${promo.desc}`, 'success');
+}
+
+function removePromo() {
+  wzPromo = null;
+  document.getElementById('promo-badge-wrap').innerHTML = '';
+  document.getElementById('promo-input').value = '';
+  buildSummary();
+}
+
+function redeemCoins() {
+  if (!wzGuest) return;
+  const available = wzGuest.coins - wzCoinsRedeemed;
+  if (available <= 0) { showToast('No coins to redeem', 'warning'); return; }
+  const redeem = Math.min(available, Math.floor(calcWizardTotals().grand));
+  wzCoinsRedeemed += redeem;
+  buildSummary();
+  showToast(`${redeem} coins redeemed → -₱${redeem.toFixed(2)}`, 'success');
+}
+
+function confirmBooking() {
+  const t = calcWizardTotals();
+  const newBooking = {
+    id: bookings.length + 1,
+    num: wzRefNo,
+    guestId: wzGuest?.id || 0,
+    guest: wzGuest?.name || 'New Guest',
+    school: wzGuest?.school || '—',
+    plan: wzRate?.label || '—',
+    date: new Date().toLocaleDateString('en-PH',{month:'2-digit',day:'2-digit',year:'numeric'}),
+    start: new Date().toLocaleTimeString('en-PH',{hour:'2-digit',minute:'2-digit'}),
+    end: '—',
+    checkout: null,
+    status: 'active',
+    base: wzRate?.price || 0,
+    addons: t.addonAmt,
+    extCost: 0,
+    wifi: wzWifi ? 50 : 0,
+    discount: t.totalDisc,
+    discountLabel: wzMembership !== 'none' ? MEMBERSHIP_DISCOUNTS[wzMembership].label : wzPromo?.label || '',
+    promos: [],
+    extensions: [],
+    addonList: wzAddons.filter(a=>a.qty>0).map(a=>a.name),
+    coins: t.coinsEarned,
+  };
+  bookings.unshift(newBooking);
+  showToast(`Booking ${wzRefNo} confirmed! ✓`, 'success');
+  setTimeout(() => showPage('bookings'), 1200);
+}
+
+function printReceipt() {
+  showToast('Opening print preview…', 'success');
+  window.print();
+}
+
+/* ══════════════════════════════════════
+   CHECKOUT PAGE
+══════════════════════════════════════ */
+function onScanInput(val) {
+  if (val.length > 10 && val.startsWith('BN-')) processCheckout();
+}
+
+function processCheckout() {
+  const val = document.getElementById('checkout-input').value.trim().toUpperCase();
+  if (!val) { showToast('Enter a booking number', 'warning'); return; }
+  const b = bookings.find(x => x.num === val || x.num.endsWith(val));
+  const result = document.getElementById('checkout-result');
+
+  if (!b) {
+    result.classList.remove('hidden');
+    result.innerHTML = `<div class="card" style="border-color:var(--danger);text-align:center;padding:24px;">
+      <div style="font-size:28px;margin-bottom:8px;">❌</div>
+      <div style="font-weight:700;font-size:14px;margin-bottom:4px;">Booking not found</div>
+      <div class="text-muted text-sm">No booking matches "${val}"</div>
+    </div>`;
+    return;
+  }
+  if (b.status === 'completed') {
+    result.classList.remove('hidden');
+    result.innerHTML = `<div class="card" style="border-color:var(--warning);text-align:center;padding:24px;">
+      <div style="font-size:28px;margin-bottom:8px;">⚠️</div>
+      <div style="font-weight:700;font-size:14px;">${b.guest} already checked out</div>
+      <div class="text-muted text-sm">at ${b.checkout}</div>
+    </div>`;
+    return;
+  }
+  b.status = 'completed';
+  b.checkout = new Date().toLocaleTimeString('en-PH',{hour:'2-digit',minute:'2-digit'});
+  result.classList.remove('hidden');
+  result.innerHTML = `<div class="card" style="border-color:var(--success);text-align:center;padding:28px;">
+    <div style="font-size:36px;margin-bottom:10px;">✅</div>
+    <div style="font-weight:800;font-size:16px;margin-bottom:4px;">${b.guest} — Checked Out</div>
+    <div class="text-muted text-sm">Booking ${b.num} · ${b.checkout}</div>
+    <div style="margin-top:12px;" class="badge badge-gold" style="font-size:12px;">★ +${b.coins} coins earned</div>
+  </div>`;
+  document.getElementById('checkout-input').value = '';
+  showToast(`${b.guest} checked out ✓`, 'success');
+}
+
+/* ══════════════════════════════════════
+   TOAST
+══════════════════════════════════════ */
+function showToast(msg, type='success') {
+  const tc = document.getElementById('toast-container');
+  const t  = document.createElement('div');
+  const icon = { success:'✓', warning:'⚠', error:'✕' }[type] || '●';
+  t.className = `toast ${type}`;
+  t.innerHTML = `<span style="font-size:14px;">${icon}</span><span>${msg}</span>`;
+  tc.appendChild(t);
+  setTimeout(() => { t.style.opacity='0'; setTimeout(()=>t.remove(),300); }, 3000);
+}
+
+/* ══════════════════════════════════════
+   INIT
+══════════════════════════════════════ */
+showPage('bookings');
+</script>
+</body>
+</html>
